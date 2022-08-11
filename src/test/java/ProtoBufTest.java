@@ -30,7 +30,7 @@ public class ProtoBufTest {
                 .build();
 
         System.out.println(">> RmqMessage : \r\n" + rmqMessage);
-        System.out.println(">> JsonFormat : \r\n" + JsonFormat.printer().print(rmqMessage));
+        System.out.println(">> JsonFormat : \r\n" + JsonFormat.printer().includingDefaultValueFields().print(rmqMessage));
 
         // RmqMessage -> ByteArray (RabbitMQ 송신)
         byte[] data = rmqMessage.toByteArray();
@@ -38,7 +38,7 @@ public class ProtoBufTest {
         // ByteArray -> RmqMessage (RabbitMQ 수신)
         RmqMessage rmq_message2 = RmqMessage.parseFrom(data);
 
-        String jsonString= JsonFormat.printer().print(rmq_message2);
+        String jsonString= JsonFormat.printer().includingDefaultValueFields().print(rmq_message2);
         //System.out.println(jsonString);
 
         switch(rmq_message2.getBodyCase().getNumber()){
