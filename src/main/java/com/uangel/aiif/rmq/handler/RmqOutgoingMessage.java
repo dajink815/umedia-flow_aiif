@@ -1,14 +1,14 @@
-package com.uangel.aiif.rmq.handler.outgoing;
+package com.uangel.aiif.rmq.handler;
 
 import com.google.protobuf.util.JsonFormat;
 import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.RmqManager;
-import com.uangel.rmq.message.RmqHeader;
-import com.uangel.rmq.message.RmqMessage;
 import com.uangel.aiif.rmq.module.RmqClient;
 import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.util.StringUtil;
 import com.uangel.aiif.util.Suppress;
+import com.uangel.protobuf.Header;
+import com.uangel.protobuf.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,40 +18,31 @@ import org.slf4j.LoggerFactory;
 public class RmqOutgoingMessage {
     static final Logger log = LoggerFactory.getLogger(RmqOutgoingMessage.class);
     private static final Suppress suppr = new Suppress(1000L * 30);
-    private RmqMessage rmqMessage;
-    private String target;
-
-    public RmqOutgoingMessage(RmqMessage rmqMessage) {
-        this.rmqMessage = rmqMessage;
-    }
+    private final String target;
 
     public RmqOutgoingMessage(String target) {
         this.target = target;
     }
 
-    public boolean sendTo(String target) {
-        return sendTo(target, this.rmqMessage);
-    }
-
-    public boolean sendTo(RmqMessage rmqMessage) {
+    public boolean sendTo(Message rmqMessage) {
         return sendTo(this.target, rmqMessage);
     }
 
-    public boolean sendTo(String target, RmqMessage rmqMessage) {
+    public boolean sendTo(String target, Message rmqMessage) {
         boolean result = false;
 
-        AiifConfig aiifConfig = AppInstance.getInstance().getConfig();
+        AiifConfig config = AppInstance.getInstance().getConfig();
         if (StringUtil.isNull(target)) {
-            target = aiifConfig.getAiwf();
+            target = config.getAiwf();
         }
 
         try {
             String json = JsonFormat.printer().includingDefaultValueFields().print(rmqMessage);
 
-            RmqHeader header = rmqMessage.getHeader();
+            Header header = rmqMessage.getHeader();
             String msgType = header.getType();
 
-            if (rmqMessage.getBodyCase().getNumber() == RmqMessage.IHBREQ_FIELD_NUMBER) {
+            if (rmqMessage.getBodyCase().getNumber() == Message.IHBREQ_FIELD_NUMBER) {
                 //if (suppr.touch(msgType + header.getMsgFrom())) {
                     log.info("[RMQ MESSAGE] send [{}] [{}] --> [{}]", msgType, header.getReasonCode(), target);
                     log.debug("[RMQ MESSAGE] Json --> {}", json);

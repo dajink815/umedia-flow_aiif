@@ -2,7 +2,7 @@ package com.uangel.aiif.service;
 
 import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.RmqManager;
-import com.uangel.aiif.rmq.handler.outgoing.RmqMsgSender;
+import com.uangel.aiif.rmq.handler.RmqMsgSender;
 import com.uangel.aiif.util.SleepUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public class ServiceManager {
         rmqManager.start();
 
         RmqMsgSender sender = RmqMsgSender.getInstance();
-        sender.sendIHbReq(0, "Success", 1);
+        sender.sendIHbReq(1);
     }
 
     private void stopService() {

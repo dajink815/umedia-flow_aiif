@@ -1,7 +1,7 @@
 package com.uangel.aiif.service;
 
 import com.uangel.aiif.config.AiifConfig;
-import com.uangel.rmq.message.RmqMessage;
+import com.uangel.protobuf.Message;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -15,7 +15,7 @@ public class AppInstance {
     private AiifConfig aiifConfig = null;
 
     // RMQ
-    private BlockingQueue<RmqMessage> rmqMsgQueue;
+    private BlockingQueue<Message> rmqMsgQueue;
 
     private AppInstance() {
         // nothing
@@ -42,10 +42,10 @@ public class AppInstance {
         this.aiifConfig = aiifConfig;
     }
 
-    public BlockingQueue<RmqMessage> getRmqMsgQueue() {
+    public BlockingQueue<Message> getRmqMsgQueue() {
         return rmqMsgQueue;
     }
-    public void setRmqMsgQueue(BlockingQueue<RmqMessage> rmqMsgQueue) {
+    public void setRmqMsgQueue(BlockingQueue<Message> rmqMsgQueue) {
         this.rmqMsgQueue = rmqMsgQueue;
     }
 }

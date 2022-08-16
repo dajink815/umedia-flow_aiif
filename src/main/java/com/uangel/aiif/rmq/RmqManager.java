@@ -1,8 +1,8 @@
 package com.uangel.aiif.rmq;
 
 import com.uangel.aiif.config.AiifConfig;
-import com.uangel.aiif.rmq.handler.incoming.RmqConsumer;
-import com.uangel.rmq.message.RmqMessage;
+import com.uangel.aiif.rmq.handler.RmqConsumer;
+import com.uangel.protobuf.Message;
 import com.uangel.aiif.rmq.module.RmqClient;
 import com.uangel.aiif.rmq.module.RmqServer;
 import com.uangel.aiif.service.AppInstance;
@@ -57,7 +57,7 @@ public class RmqManager {
         if (executorRmqService != null) return;
 
         executorRmqService = Executors.newFixedThreadPool(config.getRmqThreadSize());
-        BlockingQueue<RmqMessage> rmqMsgQueue = new ArrayBlockingQueue<>(config.getRmqQueueSize());
+        BlockingQueue<Message> rmqMsgQueue = new ArrayBlockingQueue<>(config.getRmqQueueSize());
 
         instance.setRmqMsgQueue(rmqMsgQueue);
 
@@ -96,7 +96,7 @@ public class RmqManager {
         addClient(config.getAim(), config.getHost(), config.getUser(), config.getPass(), config.getPort());
 
         // For Test - AIIF
-        addClient(config.getAiif(), config.getHost(), config.getUser(), config.getPass(), config.getPort());
+        //addClient(config.getAiif(), config.getHost(), config.getUser(), config.getPass(), config.getPort());
     }
 
     private void addClient(String target, String host, String user, String pass, int port) {

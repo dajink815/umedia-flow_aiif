@@ -1,9 +1,9 @@
-package com.uangel.aiif.rmq.util;
+package com.uangel.aiif.rmq.common;
 
-import com.uangel.aiif.rmq.types.RmqMsgType;
-import com.uangel.rmq.message.RmqHeader;
 import com.uangel.aiif.service.AppInstance;
+
 import com.uangel.aiif.util.DateFormatUtil;
+import com.uangel.protobuf.Header;
 import java.util.UUID;
 
 /**
@@ -15,18 +15,18 @@ public class RmqBuilder {
         // nothing
     }
 
-    public static RmqHeader.Builder getDefaultHeader(String type) {
-        return RmqHeader.newBuilder()
+    public static Header.Builder getDefaultHeader(String type) {
+        return Header.newBuilder()
                 .setType(type)
                 .setTId(UUID.randomUUID().toString())
                 .setMsgFrom(AppInstance.getInstance().getConfig().getAiif())
-                .setReason(com.uangel.aiif.rmq.types.RmqMsgType.REASON_SUCCESS)
+                .setReason(RmqMsgType.REASON_SUCCESS)
                 .setReasonCode(RmqMsgType.REASON_CODE_SUCCESS)
                 .setTimestamp(DateFormatUtil.currentTimeStamp());
     }
 
-    public static RmqHeader.Builder getFailHeader(String type, String reason, int reasonCode) {
-        return RmqHeader.newBuilder()
+    public static Header.Builder getFailHeader(String type, String reason, int reasonCode) {
+        return Header.newBuilder()
                 .setType(type)
                 .setTId(UUID.randomUUID().toString())
                 .setMsgFrom(AppInstance.getInstance().getConfig().getAiif())
