@@ -39,7 +39,7 @@ public class ProtoBufTest {
         Message rmq_message2 = Message.parseFrom(data);
 
         String jsonString= JsonFormat.printer().includingDefaultValueFields().print(rmq_message2);
-        //System.out.println(jsonString);
+        System.out.println(jsonString);
 
         switch(rmq_message2.getBodyCase().getNumber()){
             case Message.MHBREQ_FIELD_NUMBER:
@@ -49,15 +49,21 @@ public class ProtoBufTest {
 
                 break;
             case Message.CALLCLOSEREQ_FIELD_NUMBER:
-                System.out.println("CallCloseReq - " + Message.CALLCLOSEREQ_FIELD_NUMBER);
                 Header header = rmq_message2.getHeader();
                 CallCloseReq req = rmq_message2.getCallCloseReq();
+                System.out.println(header);
+                System.out.println(header.getReasonCode());
+                System.out.println(req);
                 System.out.println(req.getCallId());
                 break;
             default:
                 System.err.println("Not Defined Type - " + rmq_message2.getBodyCase().getNumber());
                 break;
         }
+    }
+
+    public static boolean isNull(Object obj) {
+        return obj == null || obj.toString().isEmpty();
     }
 
     @Test

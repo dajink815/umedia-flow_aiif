@@ -13,9 +13,12 @@ public class AiifConfig extends DefaultConfig {
     static final Logger log = LoggerFactory.getLogger(AiifConfig.class);
 
     // SECTION
+    private static final String SECTION_COMMON = "COMMON";
     private static final String SECTION_RMQ = "RMQ";
 
-    // FIELD
+    // FIELD - COMMON
+    private static final String FIELD_HB_INTERVAL = "HB_INTERVAL";
+    // FIELD - RMQ
     private static final String FIELD_AIS = "AIS";
     private static final String FIELD_AIM = "AIM";
     private static final String FIELD_AIWF = "AIWF";
@@ -31,7 +34,9 @@ public class AiifConfig extends DefaultConfig {
     private static final String FIELD_THREAD_SIZE = "THREAD_SIZE";
     private static final String FIELD_QUEUE_SIZE = "QUEUE_SIZE";
 
-    // VALUE
+    // VALUE - COMMON
+    private int hbInterval;
+    // VALUE - RMQ
     private String ais;
     private String aim;
     private String aiwf;
@@ -81,7 +86,12 @@ public class AiifConfig extends DefaultConfig {
     }
 
     private void loadConfig() {
+        loadCommonConfig();
         loadRmqConfig();
+    }
+
+    private void loadCommonConfig() {
+        this.hbInterval = getIntValue(SECTION_COMMON, FIELD_HB_INTERVAL, 200);
     }
 
     private void loadRmqConfig() {
@@ -101,58 +111,51 @@ public class AiifConfig extends DefaultConfig {
         this.rmqQueueSize = getIntValue(SECTION_RMQ, FIELD_QUEUE_SIZE, 5);
     }
 
+    // COMMON
+    public int getHbInterval() {
+        return hbInterval;
+    }
+
+    // RMQ
     public String getAis() {
         return ais;
     }
-
     public String getAim() {
         return aim;
     }
-
     public String getAiwf() {
         return aiwf;
     }
-
     public String getAiif() {
         return aiif;
     }
-
     public String getHost() {
         return host;
     }
-
     public String getUser() {
         return user;
     }
-
     public int getPort() {
         return port;
     }
-
     public String getPass() {
         return pass;
     }
-
     public String getAiwfHost() {
         return aiwfHost;
     }
-
     public String getAiwfUser() {
         return aiwfUser;
     }
-
     public int getAiwfPort() {
         return aiwfPort;
     }
-
     public String getAiwfPass() {
         return aiwfPass;
     }
-
     public int getRmqThreadSize() {
         return rmqThreadSize;
     }
-
     public int getRmqQueueSize() {
         return rmqQueueSize;
     }

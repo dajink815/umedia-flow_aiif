@@ -119,7 +119,7 @@ public class RmqTransport {
 
         try {
             //서버가 지원하는 경우 클라이언트가 제공한 ConnectionName 이 관리 UI에 표시된다.
-            this.connection = factory.newConnection("aiif_" + this.queueName);
+            this.connection = factory.newConnection("AICall_aiif" + this.queueName);
             this.connection.addBlockedListener(new BlockedListener() {
                 @Override
                 public void handleBlocked(String reason) {

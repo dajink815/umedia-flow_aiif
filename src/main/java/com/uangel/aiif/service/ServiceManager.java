@@ -2,7 +2,7 @@ package com.uangel.aiif.service;
 
 import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.RmqManager;
-import com.uangel.aiif.rmq.handler.RmqMsgSender;
+import com.uangel.aiif.service.schedule.IntervalTaskManager;
 import com.uangel.aiif.util.SleepUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,7 @@ public class ServiceManager {
     private static final AppInstance instance = AppInstance.getInstance();
     private boolean isQuit = false;
     private RmqManager rmqManager = null;
+    private IntervalTaskManager intervalTaskManager = null;
 
     private ServiceManager() {
         instance.setConfig(new AiifConfig(instance.getConfigPath()));
@@ -54,8 +55,13 @@ public class ServiceManager {
         rmqManager = RmqManager.getInstance();
         rmqManager.start();
 
-        RmqMsgSender sender = RmqMsgSender.getInstance();
-        sender.sendIHbReq(1);
+        this.intervalTaskManager = IntervalTaskManager.getInstance();
+        try {
+            this.intervalTaskManager.init();
+            this.intervalTaskManager.start();
+        } catch (Exception e) {
+            log.error("IntervalTaskManager.start.Exception", e);
+        }
     }
 
     private void stopService() {
@@ -63,6 +69,9 @@ public class ServiceManager {
 
         if (rmqManager != null)
             rmqManager.stop();
+
+        if (intervalTaskManager != null)
+            intervalTaskManager.stop();
     }
 
 
