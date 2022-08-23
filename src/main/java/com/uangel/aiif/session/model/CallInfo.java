@@ -1,6 +1,8 @@
 package com.uangel.aiif.session.model;
 
-import com.uangel.aiif.session.state.SessionState;
+import ai.media.stt.SttConverter;
+import ai.media.tts.TtsConverter;
+import com.uangel.aiif.session.state.CallState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,31 +11,35 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author dajin kim
  */
-public class SessionInfo {
-    private static final Logger log = LoggerFactory.getLogger(SessionInfo.class);
+public class CallInfo {
+    private static final Logger log = LoggerFactory.getLogger(CallInfo.class);
     private final ReentrantLock lock = new ReentrantLock();
 
     private final String callId;
     private final long createTime;
 
     // State
-    private SessionState sessionState;
+    private CallState callState;
 
     // RTP
     private int rtpPort;
 
+    private int samplingRate;
+
     // TTS & STT
     private String filePath;
     private String resultTxt;
+    private TtsConverter ttsConverter;
+    private SttConverter sttConverter;
 
     private String logHeader = "";
 
-    public SessionInfo(String callId) {
+    public CallInfo(String callId) {
         this.callId = callId;
         this.createTime = System.currentTimeMillis();
         this.setLogHeader();
         // status
-        this.sessionState = SessionState.NEW;
+        this.callState = CallState.NEW;
     }
 
 
@@ -67,16 +73,24 @@ public class SessionInfo {
         this.logHeader = "() ("+ this.callId + ") () ";
     }
 
-    public SessionState getSessionState() {
-        return sessionState;
+    public CallState getSessionState() {
+        return callState;
     }
-    public void setSessionState(SessionState sessionState) {
-        if (this.sessionState == null || !this.sessionState.equals(sessionState)) {
-            log.info("{}SESSION Status Changed [{}] --> [{}]", logHeader, this.sessionState, sessionState);
-            this.sessionState = sessionState;
+    public void setSessionState(CallState callState) {
+        if (this.callState == null || !this.callState.equals(callState)) {
+            log.info("{}SESSION Status Changed [{}] --> [{}]", logHeader, this.callState, callState);
+            this.callState = callState;
         }
     }
 
+    public int getSamplingRate() {
+        return samplingRate;
+    }
+    public void setSamplingRate(int samplingRate) {
+        this.samplingRate = samplingRate;
+    }
+
+    // RTP
     public int getRtpPort() {
         return rtpPort;
     }
@@ -84,6 +98,7 @@ public class SessionInfo {
         this.rtpPort = rtpPort;
     }
 
+    // TTS & STT
     public String getFilePath() {
         return filePath;
     }
@@ -96,5 +111,19 @@ public class SessionInfo {
     }
     public void setResultTxt(String resultTxt) {
         this.resultTxt = resultTxt;
+    }
+
+    public TtsConverter getTtsConverter() {
+        return ttsConverter;
+    }
+    public void setTtsConverter(TtsConverter ttsConverter) {
+        this.ttsConverter = ttsConverter;
+    }
+
+    public SttConverter getSttConverter() {
+        return sttConverter;
+    }
+    public void setSttConverter(SttConverter sttConverter) {
+        this.sttConverter = sttConverter;
     }
 }

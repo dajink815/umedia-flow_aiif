@@ -1,5 +1,15 @@
 package com.uangel.aiif.rmq.handler.aim.incoming;
 
+import ai.media.stt.SttConverter;
+import ai.media.tts.TtsConverter;
+import com.google.cloud.speech.v1.RecognitionConfig;
+import com.google.cloud.texttospeech.v1.SsmlVoiceGender;
+import com.uangel.aiif.rmq.handler.RmqMsgSender;
+import com.uangel.aiif.service.ServiceDefine;
+import com.uangel.aiif.session.CallManager;
+import com.uangel.aiif.session.model.CallInfo;
+import com.uangel.protobuf.Header;
+import com.uangel.protobuf.MediaStartReq;
 import com.uangel.protobuf.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RmqMediaStartReq {
     static final Logger log = LoggerFactory.getLogger(RmqMediaStartReq.class);
+    private static final CallManager callManager = CallManager.getInstance();
 
     public RmqMediaStartReq() {
         // nothing
@@ -16,6 +27,50 @@ public class RmqMediaStartReq {
 
     public void handle(Message msg) {
         // RTP Port 할당 -> AIM 전달
+
+        Header header = msg.getHeader();
+        MediaStartReq req = msg.getMediaStartReq();
+        // req check isEmpty
+
+        RmqMsgSender sender = RmqMsgSender.getInstance();
+
+        String callId = req.getCallId();
+        CallInfo callInfo = callManager.getCallInfo(callId);
+        if (callInfo == null) {
+            log.warn("() ({}) () MediaStartReq Fail Find Session", callId);
+            // Send Fail Response
+            sender.sendMediaStartRes(header.getTId(), 100, "Fail", callId);
+            return;
+        }
+
+        // Sampling Rate
+        int samplingRate = req.getSamplingRate();
+        if (samplingRate == 0) {
+            log.warn("{}MediaStartReq SamplingRate is Null", callInfo.getLogHeader());
+            // Default SamplingRate
+            samplingRate = 8000;
+        }
+        callInfo.setSamplingRate(samplingRate);
+
+        // todo TTS, STT Sampling Rate 별개로?
+
+        SttConverter sttConverter = SttConverter.newBuilder()
+                .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                .setSampleRateHertz(samplingRate)
+                .setLanguageCode(ServiceDefine.LANG_CODE.getStr())
+                .build();
+
+        TtsConverter ttsConverter = TtsConverter.newBuilder()
+                .setAudioEncoding(com.google.cloud.texttospeech.v1.AudioEncoding.LINEAR16)
+                .setSampleRateHertz(samplingRate)
+                .setLanguageCode(ServiceDefine.LANG_CODE.getStr())
+                .setSsmlGender(SsmlVoiceGender.NEUTRAL)
+                .build();
+
+        callInfo.setSttConverter(sttConverter);
+        callInfo.setTtsConverter(ttsConverter);
+
+        sender.sendMediaStartRes(header.getTId(), callInfo);
 
     }
 }

@@ -2,7 +2,7 @@ package com.uangel.aiif.rmq.handler.aiwf.outgoing;
 
 import com.uangel.aiif.rmq.common.RmqBuilder;
 import com.uangel.aiif.rmq.handler.aiwf.RmqAiwfOutgoing;
-import com.uangel.aiif.session.model.SessionInfo;
+import com.uangel.aiif.session.model.CallInfo;
 import com.uangel.protobuf.DelSessionRes;
 import com.uangel.protobuf.Header;
 import com.uangel.protobuf.Message;
@@ -16,7 +16,7 @@ public class RmqDelSessionRes  extends RmqAiwfOutgoing {
         // nothing
     }
 
-    public boolean send(String tId, SessionInfo sessionInfo, String msgType) {
+    public boolean send(String tId, CallInfo sessionInfo, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getDefaultHeader(msgType);
         headerBuilder.setTId(tId);
 

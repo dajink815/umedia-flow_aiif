@@ -2,7 +2,7 @@ package com.uangel.aiif.rmq.handler.aim.outgoing;
 
 import com.uangel.aiif.rmq.common.RmqBuilder;
 import com.uangel.aiif.rmq.handler.aim.RmqAimOutgoing;
-import com.uangel.aiif.session.model.SessionInfo;
+import com.uangel.aiif.session.model.CallInfo;
 import com.uangel.protobuf.Header;
 import com.uangel.protobuf.MediaPlayReq;
 import com.uangel.protobuf.Message;
@@ -16,7 +16,7 @@ public class RmqMediaPlayReq extends RmqAimOutgoing {
         // nothing
     }
 
-    public boolean send(SessionInfo sessionInfo, String msgType) {
+    public boolean send(CallInfo sessionInfo, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getDefaultHeader(msgType);
 
         Message msg = Message.newBuilder()
@@ -29,7 +29,7 @@ public class RmqMediaPlayReq extends RmqAimOutgoing {
         return sendTo(msg);
     }
 
-    public boolean send(int reasonCode, String reason, SessionInfo sessionInfo, String msgType) {
+    public boolean send(int reasonCode, String reason, CallInfo sessionInfo, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getFailHeader(msgType, reason, reasonCode);
 
         Message msg = Message.newBuilder()

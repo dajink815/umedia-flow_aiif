@@ -30,6 +30,18 @@
         </repository>
     </repositories>
 
+<!--    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>26.0.0</version>
+                <type>pom</type>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>-->
+
     <dependencies>
         <!--Make sure the version number of the runtime matches (or is newer than) the version
         number of the protoc.-->
@@ -102,6 +114,30 @@
         <dependency>
             <groupId>com.uangel.protobuf</groupId>
             <artifactId>aipbmsg</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-texttospeech</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-speech</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ai.media</groupId>
+            <artifactId>voice-recognition</artifactId>
             <version>1.0.0</version>
         </dependency>
 
