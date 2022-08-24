@@ -16,27 +16,27 @@ public class RmqSttResultReq extends RmqAiwfOutgoing {
         // nothing
     }
 
-    public boolean send(CallInfo sessionInfo, String msgType) {
+    public boolean send(CallInfo callInfo, String resultTxt, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getDefaultHeader(msgType);
 
         Message msg = Message.newBuilder()
                 .setHeader(headerBuilder.build())
                 .setSttResultReq(SttResultReq.newBuilder()
-                        .setCallId(sessionInfo.getCallId())
-                        .setResultText(sessionInfo.getResultTxt()))
+                        .setCallId(callInfo.getCallId())
+                        .setResultText(resultTxt))
                 .build();
 
         return sendTo(msg);
     }
 
-    public boolean send(int reasonCode, String reason, CallInfo sessionInfo, String msgType) {
+    public boolean send(int reasonCode, String reason, CallInfo callInfo, String resultTxt, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getFailHeader(msgType, reason, reasonCode);
 
         Message msg = Message.newBuilder()
                 .setHeader(headerBuilder.build())
                 .setSttResultReq(SttResultReq.newBuilder()
-                        .setCallId(sessionInfo.getCallId())
-                        .setResultText(sessionInfo.getResultTxt()))
+                        .setCallId(callInfo.getCallId())
+                        .setResultText(resultTxt))
                 .build();
 
         return sendTo(msg);

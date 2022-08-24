@@ -64,6 +64,7 @@ public class RmqMediaStartReq {
                 .setAudioEncoding(com.google.cloud.texttospeech.v1.AudioEncoding.LINEAR16)
                 .setSampleRateHertz(samplingRate)
                 .setLanguageCode(ServiceDefine.LANG_CODE.getStr())
+                // Voice 설정
                 .setSsmlGender(SsmlVoiceGender.NEUTRAL)
                 .build();
 

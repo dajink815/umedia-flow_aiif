@@ -36,7 +36,6 @@ public class CallInfo {
 
     // TTS & STT
     private String filePath;
-    private String resultTxt;
     private TtsConverter ttsConverter;
     private SttConverter sttConverter;
 
@@ -118,13 +117,6 @@ public class CallInfo {
     }
     public void setFilePath(String filePath) {
         this.filePath = filePath;
-    }
-
-    public String getResultTxt() {
-        return resultTxt;
-    }
-    public void setResultTxt(String resultTxt) {
-        this.resultTxt = resultTxt;
     }
 
     public TtsConverter getTtsConverter() {
