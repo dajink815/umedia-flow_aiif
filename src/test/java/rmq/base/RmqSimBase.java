@@ -46,6 +46,9 @@ public class RmqSimBase {
         try {
             appInstance.setConfigPath(new File("src/test/resources/config").getAbsolutePath()+ File.separator);
             appInstance.setConfig(new AiifConfig(appInstance.getConfigPath()));
+            // Modify Media File Path
+            appInstance.getConfig().setMediaFilePath(System.getProperty("user.dir") + "/src/test/resources/tts/");
+
             // config
             RmqManager.getInstance().start();
 

@@ -108,6 +108,7 @@ public class FileUtil {
         return result;
     }
 
+    // 테스트 필요
     public static byte[] inputStreamToByteArray(InputStream inStream){
         InputStreamReader in = new InputStreamReader(inStream);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

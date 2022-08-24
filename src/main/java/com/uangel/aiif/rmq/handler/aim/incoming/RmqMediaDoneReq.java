@@ -9,6 +9,9 @@ import com.uangel.protobuf.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.uangel.aiif.rmq.common.RmqMsgType.REASON_CODE_NO_SESSION;
+import static com.uangel.aiif.rmq.common.RmqMsgType.REASON_NO_SESSION;
+
 /**
  * @author dajin kim
  */
@@ -34,7 +37,7 @@ public class RmqMediaDoneReq {
         if (callInfo == null) {
             log.warn("() ({}) () MediaDoneReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendMediaDoneRes(header.getTId(), 100, "Fail", callId);
+            sender.sendMediaDoneRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
             return;
         }
 

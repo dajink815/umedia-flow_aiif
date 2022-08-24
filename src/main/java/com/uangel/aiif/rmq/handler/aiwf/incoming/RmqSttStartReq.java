@@ -17,6 +17,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.uangel.aiif.rmq.common.RmqMsgType.*;
+
 /**
  * @author dajin kim
  */
@@ -44,7 +46,7 @@ public class RmqSttStartReq {
         if (callInfo == null) {
             log.warn("() ({}) () SttStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendSttStartRes(header.getTId(), 100, "Fail", callId);
+            sender.sendSttStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
             return;
         }
 
@@ -52,16 +54,17 @@ public class RmqSttStartReq {
         if (sttConverter == null) {
             log.warn("{}SttStartReq SttConverter is Null", callInfo.getLogHeader());
             // Send Fail Response
-            sender.sendSttStartRes(header.getTId(), 100, "Fail", callId);
+            sender.sendSttStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId);
             return;
         }
 
+        // todo Converter Test
         // STT Start
         int sttDur = req.getDuration();
         sttConverter.start();
         log.debug("{}RmqSttStartReq STT Start - Duration [{}]", callInfo.getLogHeader(), sttDur);
 
-        // RTP 수신 Start
+        // RTP 처리 Start
 
         // RTP 수신 결과에 따라 Response
 
@@ -72,7 +75,7 @@ public class RmqSttStartReq {
 
         // Schedule
         executors.schedule(() ->{
-            // RTP 수신 Stop
+            // RTP 처리 Stop
 
             // STT Stop
             sttConverter.stop();

@@ -1,5 +1,7 @@
+import ai.media.tts.TtsConverter;
 import com.google.cloud.texttospeech.v1.*;
 import com.google.protobuf.ByteString;
+import com.uangel.aiif.service.ServiceDefine;
 import com.uangel.aiif.util.FileUtil;
 import org.junit.Test;
 
@@ -48,14 +50,6 @@ public class TtsTest {
         }
     }
 
-    @Test
-    public void convertToWav() {
-        byte[] data = FileUtil.fileToByteArray("hello.mp3");
-
-        System.out.println(data);
-        FileUtil.byteArrayToFile(data, "test.wav");
-    }
-
     /**
      * Demonstrates using the Text to Speech client to synthesize text or ssml.
      *
@@ -71,7 +65,7 @@ public class TtsTest {
             // Build the voice request
             VoiceSelectionParams voice =
                     VoiceSelectionParams.newBuilder()
-                            .setLanguageCode("en-US") // languageCode = "en_us"
+                            .setLanguageCode("ko-KR") // languageCode = "en_us"
                             .setSsmlGender(SsmlVoiceGender.FEMALE) // ssmlVoiceGender = SsmlVoiceGender.FEMALE
                             .build();
 
@@ -89,10 +83,32 @@ public class TtsTest {
             ByteString audioContents = response.getAudioContent();
 
             // Write the response to the output file.
-            try (OutputStream out = new FileOutputStream("output.mp3")) {
+            try (OutputStream out = new FileOutputStream("test.mp3")) {
                 out.write(audioContents.toByteArray());
-                System.out.println("Audio content written to file \"output.mp3\"");
+                System.out.println("Audio content written to file \"test.mp3\"");
             }
         }
+    }
+
+    @Test
+    public void converterTest() {
+        TtsConverter ttsConverter = TtsConverter.newBuilder()
+                .setAudioEncoding(com.google.cloud.texttospeech.v1.AudioEncoding.LINEAR16)
+                .setSampleRateHertz(8000)
+                .setLanguageCode(ServiceDefine.LANG_CODE.getStr())
+                // Voice 설정
+                .setSsmlGender(SsmlVoiceGender.FEMALE)
+                .build();
+
+        String fileName = "greeting.wav";
+        String filePath = System.getProperty("user.dir") + "/src/test/resources/tts/cache/" + fileName;
+
+        String content = "안녕하세요. 반갑습니다!";
+
+        // 2-1. TtsConverter 이용해 멘트를 byte array 변환
+        byte[] data = ttsConverter.convertText(content).toByteArray();
+        // 2-2. byte array 를 wav 파일로 변환
+        FileUtil.byteArrayToFile(data, filePath);
+
     }
 }

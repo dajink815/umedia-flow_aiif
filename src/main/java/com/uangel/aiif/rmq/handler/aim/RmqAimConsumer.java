@@ -1,6 +1,8 @@
 package com.uangel.aiif.rmq.handler.aim;
 
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 import com.uangel.aiif.rmq.handler.aim.incoming.RmqMediaDoneReq;
 import com.uangel.aiif.rmq.handler.aim.incoming.RmqMediaPlayRes;
 import com.uangel.aiif.rmq.handler.aim.incoming.RmqMediaStartReq;
@@ -17,6 +19,14 @@ public class RmqAimConsumer {
     static final Logger log = LoggerFactory.getLogger(RmqAimConsumer.class);
 
     public void aimMessageProcessing(Message msg) {
+        // For Test
+        try {
+            String json = JsonFormat.printer().includingDefaultValueFields().print(msg);
+            log.debug("RmqAimConsumer -->\r\n{}", json);
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+
         switch(msg.getBodyCase().getNumber()){
 
             case Message.MEDIASTARTREQ_FIELD_NUMBER:

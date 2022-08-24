@@ -1,6 +1,8 @@
 package com.uangel.aiif.rmq.handler.aiwf;
 
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 import com.uangel.aiif.rmq.handler.aiwf.incoming.*;
 import com.uangel.protobuf.Header;
 import com.uangel.protobuf.Message;
@@ -14,7 +16,13 @@ public class RmqAiwfConsumer {
     static final Logger log = LoggerFactory.getLogger(RmqAiwfConsumer.class);
 
     public void aiwfMessageProcessing(Message msg) {
-        log.debug("RmqAiwfConsumer [{}]", msg.getHeader().getType());
+        // For Test
+        try {
+            String json = JsonFormat.printer().includingDefaultValueFields().print(msg);
+            log.debug("RmqAiwfConsumer -->\r\n{}", json);
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
 
         switch(msg.getBodyCase().getNumber()){
             case Message.IHBRES_FIELD_NUMBER:

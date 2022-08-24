@@ -1,8 +1,10 @@
+import ai.media.stt.SttConverter;
 import com.google.api.gax.rpc.ClientStream;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.StreamController;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+import com.uangel.aiif.service.ServiceDefine;
 import org.junit.Test;
 // Imports the Google Cloud client library
 import com.google.cloud.speech.v1.RecognitionConfig.AudioEncoding;
@@ -136,4 +138,16 @@ public class SttTest {
         }
         responseObserver.onComplete(); //완료 이벤트 발생
     }
+
+    @Test
+    public void converterTest() {
+        SttConverter sttConverter = SttConverter.newBuilder()
+                .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                .setSampleRateHertz(8000)
+                .setLanguageCode(ServiceDefine.LANG_CODE.getStr())
+                .build();
+
+
+    }
 }
+

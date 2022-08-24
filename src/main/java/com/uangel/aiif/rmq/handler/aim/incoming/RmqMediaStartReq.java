@@ -14,6 +14,9 @@ import com.uangel.protobuf.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.uangel.aiif.rmq.common.RmqMsgType.REASON_CODE_NO_SESSION;
+import static com.uangel.aiif.rmq.common.RmqMsgType.REASON_NO_SESSION;
+
 /**
  * @author dajin kim
  */
@@ -39,7 +42,7 @@ public class RmqMediaStartReq {
         if (callInfo == null) {
             log.warn("() ({}) () MediaStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendMediaStartRes(header.getTId(), 100, "Fail", callId);
+            sender.sendMediaStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
             return;
         }
 
@@ -67,6 +70,8 @@ public class RmqMediaStartReq {
                 // Voice 설정
                 .setSsmlGender(SsmlVoiceGender.NEUTRAL)
                 .build();
+
+        log.debug("{}MediaStartReq - STT/TTS Converter Created", callInfo.getLogHeader());
 
         callInfo.setSttConverter(sttConverter);
         callInfo.setTtsConverter(ttsConverter);

@@ -21,6 +21,7 @@ public class AiifConfig extends DefaultConfig {
     private static final String SECTION_COMMON = "COMMON";
     private static final String SECTION_RMQ = "RMQ";
     private static final String SECTION_NETTY = "NETTY";
+    private static final String SECTION_AI = "AI";
 
     // FIELD - COMMON
     private static final String FIELD_HB_INTERVAL = "HB_INTERVAL";
@@ -39,6 +40,8 @@ public class AiifConfig extends DefaultConfig {
     private static final String FIELD_AIWF_PASS = "AIWF_PASS";
     private static final String FIELD_THREAD_SIZE = "THREAD_SIZE";
     private static final String FIELD_QUEUE_SIZE = "QUEUE_SIZE";
+    // FIELD - AI
+    private static final String FIELD_MEDIA_FILE_PATH = "MEDIA_FILE_PATH";
 
     // VALUE - COMMON
     private int hbInterval;
@@ -57,7 +60,7 @@ public class AiifConfig extends DefaultConfig {
     private String aiwfPass;
     private int rmqThreadSize;
     private int rmqQueueSize;
-
+    // VALUE - NETTY
     private int rmqBufferCount;
     private int rmqConsumerCount;
     private int maxMessagesPerSec;
@@ -66,6 +69,8 @@ public class AiifConfig extends DefaultConfig {
     private int udpSndBufferSize;
     private int localUdpPortMin;
     private int localUdpPortMax;
+    // VALUE - AI
+    private String mediaFilePath;
 
     public AiifConfig(String configPath) {
         super(configPath);
@@ -103,6 +108,8 @@ public class AiifConfig extends DefaultConfig {
     private void loadConfig() {
         loadCommonConfig();
         loadRmqConfig();
+        loadNettyConfig();
+        loadAiConfig();
     }
 
     private void loadCommonConfig() {
@@ -124,9 +131,9 @@ public class AiifConfig extends DefaultConfig {
         this.aiwfPass = getStrValue(SECTION_RMQ, FIELD_AIWF_PASS, "");
         this.rmqThreadSize = getIntValue(SECTION_RMQ, FIELD_THREAD_SIZE, 5);
         this.rmqQueueSize = getIntValue(SECTION_RMQ, FIELD_QUEUE_SIZE, 5);
+    }
 
-
-
+    private void loadNettyConfig() {
         this.rmqBufferCount = getIntValue(SECTION_NETTY, "RMQ_BUFFER_COUNT", 4096);
         this.rmqConsumerCount = getIntValue(SECTION_NETTY, "RMQ_CONSUMER_COUNT", 128);
         this.maxMessagesPerSec = getIntValue(SECTION_NETTY, "MAX_MESSAGES_PER_SEC", 0);
@@ -135,5 +142,9 @@ public class AiifConfig extends DefaultConfig {
         this.udpSndBufferSize = getIntValue(SECTION_NETTY, "UDP_SND_BUFFER_SIZE", 16777216);
         this.localUdpPortMin = getIntValue(SECTION_NETTY, "LOCAL_UDP_PORT_MIN", 10000);
         this.localUdpPortMax = getIntValue(SECTION_NETTY, "LOCAL_UDP_PORT_MAX", 50000);
+    }
+
+    private void loadAiConfig() {
+        this.mediaFilePath = getStrValue(SECTION_AI, FIELD_MEDIA_FILE_PATH, "");
     }
 }

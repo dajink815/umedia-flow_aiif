@@ -3,7 +3,9 @@ package com.uangel.aiif.rmq.handler.aiwf.incoming;
 import ai.media.tts.TtsConverter;
 import com.uangel.aiif.ai.google.tts.TtsFileManager;
 import com.uangel.aiif.ai.google.tts.TtsType;
+import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
+import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.service.ServiceDefine;
 import com.uangel.aiif.session.CallManager;
 import com.uangel.aiif.session.model.CallInfo;
@@ -14,6 +16,8 @@ import com.uangel.protobuf.TtsStartReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.uangel.aiif.rmq.common.RmqMsgType.*;
+
 /**
  * @author dajin kim
  */
@@ -21,6 +25,8 @@ public class RmqTtsStartReq {
     static final Logger log = LoggerFactory.getLogger(RmqTtsStartReq.class);
     private static final CallManager callManager = CallManager.getInstance();
     private static final TtsFileManager ttsFileManager = TtsFileManager.getInstance();
+    private static final String MEDIA_DIR = "/tts/";
+    private static final String CACHE_DIR = "/cache/";
 
     public RmqTtsStartReq() {
         // nothing
@@ -39,35 +45,31 @@ public class RmqTtsStartReq {
         if (callInfo == null) {
             log.warn("() ({}) () TtsStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendTtsStartRes(header.getTId(), 100, "Fail", callId);
+            sender.sendTtsStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
             return;
         }
 
+        // 파일 새로 생성 하는 경우만 converter Null 체크
         TtsConverter ttsConverter = callInfo.getTtsConverter();
         if (ttsConverter == null) {
             log.warn("{}TtsStartReq TtsConverter is Null", callInfo.getLogHeader());
             // Send Fail Response
-            sender.sendTtsStartRes(header.getTId(), 100, "Fail", callId);
+            sender.sendTtsStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId);
             return;
         }
-
-        // Response 전송 시점  TTS 처리 전?
-        // Send Success Response
-        sender.sendTtsStartRes(header.getTId(), callInfo);
 
         // TTS Start
         TtsType ttsType = TtsType.getTypeEnum(req.getType());
         String content = req.getContent();
         String filePath = null;
 
-        // todo 파일 경로 규칙
         if (TtsType.FILE.equals(ttsType)) {
             // 파일 경로 처리 필요?
 
             // 파일 존재 하지 않으면 Fail Response
             if (!FileUtil.isExist(content)) {
                 log.warn("{}TtsStartReq [{}] File Not Exist", callInfo.getLogHeader(), content);
-                sender.sendTtsStartRes(header.getTId(), 100, "Fail", callId);
+                sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId);
                 return;
             }
             filePath = content;
@@ -81,9 +83,12 @@ public class RmqTtsStartReq {
             if (ttsFile != null) {
                 filePath = ttsFile;
             }
-            // 2. 없다면 content 를 wav 파일로 변환, 새로운
+            // 2. 없다면 content 를 wav 파일로 변환 하여 AIM 에 재생 요청
             else {
-                filePath = "new/tts/filePath/" + callId + ServiceDefine.MEDIA_FILE_EXTENSION.getStr();
+                // 파일명 규칙
+                String fileName = callId + ServiceDefine.MEDIA_FILE_EXTENSION.getStr();
+                AiifConfig config = AppInstance.getInstance().getConfig();
+                filePath = config.getMediaFilePath() + CACHE_DIR + fileName;
 
                 // 2-1. TtsConverter 이용해 멘트를 byte array 변환
                 byte[] data = ttsConverter.convertText(content).toByteArray();
@@ -97,6 +102,10 @@ public class RmqTtsStartReq {
             log.warn("{} Unknown TTS Type : {}", callInfo.getLogHeader(), ttsType);
         }
 
+        // Response 전송 시점  TTS 처리 전?
+        // Send Success Response
+        sender.sendTtsStartRes(header.getTId(), callInfo);
+        // Send MediaPlayReq
         sender.sendMediaPlayReq(callInfo, filePath);
     }
 
