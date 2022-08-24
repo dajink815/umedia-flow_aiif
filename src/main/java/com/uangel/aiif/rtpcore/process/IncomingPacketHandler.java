@@ -30,10 +30,10 @@ public class IncomingPacketHandler extends SimpleChannelInboundHandler<DatagramP
         rtpHeader = new RtpHeader(buf.array(), 0);
 
         CallInfo callInfo = nettyChannelManager.getCallByPort(localPort);
+        if(!callInfo.getSttConverter().isRunning()) return;
+
         byte[] rtpPayload = new byte[rtpHeader.getPayloadLength()];
         System.arraycopy(rtpHeader.getData(), rtpHeader.getPayloadPosition(), rtpPayload, 0, rtpHeader.getPayloadLength());
-
-
-        // TODO RTP Payload 처리
+        callInfo.getSttConverter().inputData(rtpPayload);
     }
 }

@@ -25,12 +25,7 @@ public class RmqSttStartReq {
     private static final CallManager callManager = CallManager.getInstance();
     // todo ThreadPool Size Config
     private static final ScheduledExecutorService executors = Executors.newScheduledThreadPool(1,
-            new BasicThreadFactory.Builder()
-                    .namingPattern("SttStartReq-%d")
-                    .daemon(true)
-                    // 우선 순위 어떻게?
-                    .priority(Thread.MAX_PRIORITY)
-                    .build());
+            new BasicThreadFactory.Builder().namingPattern("SttStartReq-%d").build());
 
     public RmqSttStartReq() {
         // nothing
@@ -83,9 +78,7 @@ public class RmqSttStartReq {
             sttConverter.stop();
 
             // STT 결과 처리
-            String result = Optional.ofNullable(sttConverter.getResultTexts()).filter(o -> !o.isEmpty()).map(o -> o.get(o.size() - 1)).orElse(null);
-            // Null 인 경우 공란 이라도 AIWF 로 리턴 -> AIWF 에서 Retry 횟수만큼 다시 SttStartReq 전송
-            result = StringUtil.blankIfNull(result);
+            String result = Optional.ofNullable(sttConverter.getResultTexts()).filter(o -> !o.isEmpty()).map(o -> o.get(o.size() - 1)).orElse("");
             log.debug("{}RmqSttStartReq STT Result : {}", callInfo.getLogHeader(), result);
 
             // Send SttResultReq

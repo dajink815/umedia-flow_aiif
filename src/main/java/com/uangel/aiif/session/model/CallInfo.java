@@ -29,9 +29,6 @@ public class CallInfo {
     // State
     private CallState callState;
 
-    // RTP
-    private int rtpPort;
-
     private int samplingRate;
 
     // TTS & STT
@@ -68,13 +65,6 @@ public class CallInfo {
         }
     }
 
-    public String getCallId() {
-        return callId;
-    }
-    public long getCreateTime() {
-        return createTime;
-    }
-
     public String getLogHeader() {
         return logHeader;
     }
@@ -82,9 +72,16 @@ public class CallInfo {
         this.logHeader = "() ("+ this.callId + ") () ";
     }
 
+
+
+    public void dealloc(){
+        nettyChannelManager.deallocPort(rtpChannelInfo.getUsingPort());
+    }
+
     public CallState getSessionState() {
         return callState;
     }
+
     public void setSessionState(CallState callState) {
         if (this.callState == null || !this.callState.equals(callState)) {
             log.info("{}SESSION Status Changed [{}] --> [{}]", logHeader, this.callState, callState);
@@ -92,44 +89,9 @@ public class CallInfo {
         }
     }
 
-    public void dealloc(){
-        nettyChannelManager.deallocPort(rtpChannelInfo.getUsingPort());
-    }
-
-    public int getSamplingRate() {
-        return samplingRate;
-    }
-    public void setSamplingRate(int samplingRate) {
-        this.samplingRate = samplingRate;
-    }
-
     // RTP
     public int getRtpPort() {
-        return rtpPort;
-    }
-    public void setRtpPort(int rtpPort) {
-        this.rtpPort = rtpPort;
+        return rtpChannelInfo.getUsingPort();
     }
 
-    // TTS & STT
-    public String getFilePath() {
-        return filePath;
-    }
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public TtsConverter getTtsConverter() {
-        return ttsConverter;
-    }
-    public void setTtsConverter(TtsConverter ttsConverter) {
-        this.ttsConverter = ttsConverter;
-    }
-
-    public SttConverter getSttConverter() {
-        return sttConverter;
-    }
-    public void setSttConverter(SttConverter sttConverter) {
-        this.sttConverter = sttConverter;
-    }
 }

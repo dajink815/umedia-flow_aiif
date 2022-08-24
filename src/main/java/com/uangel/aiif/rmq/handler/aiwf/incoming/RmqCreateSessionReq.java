@@ -37,14 +37,7 @@ public class RmqCreateSessionReq {
             return;
         }
 
-        // RTP Port 할당
-        int rtpPort = 5050;
-
-        // 할당 실패
-        // Send Fail Response
-        // sender.sendCreateSessionRes(header.getTId(), 100, "Fail", callId);
-
-        callInfo.setRtpPort(rtpPort);
+        // RTP 할당은 CallManager.createCallInfo() 메서드에서 처리됨
 
         // Send Success Response
         sender.sendCreateSessionRes(header.getTId(), callInfo);
