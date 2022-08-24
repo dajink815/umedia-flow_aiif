@@ -1,9 +1,9 @@
 import com.google.cloud.texttospeech.v1.*;
 import com.google.protobuf.ByteString;
+import com.uangel.aiif.util.FileUtil;
 import org.junit.Test;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Google Cloud TextToSpeech API sample application. Example usage: mvn package exec:java
@@ -40,15 +40,20 @@ public class TtsTest {
             ByteString audioContents = response.getAudioContent();
 
             // Write the response to the output file.
-            try (OutputStream out = new FileOutputStream("hello.mp3")) {
-                out.write(audioContents.toByteArray());
-                System.out.println("Audio content written to file \"output.mp3\"");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            String fileName = "hello.wav";
+            FileUtil.byteArrayToFile(audioContents.toByteArray(), fileName);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void convertToWav() {
+        byte[] data = FileUtil.fileToByteArray("hello.mp3");
+
+        System.out.println(data);
+        FileUtil.byteArrayToFile(data, "test.wav");
     }
 
     /**

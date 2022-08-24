@@ -32,7 +32,6 @@ public class CallInfo {
     private int samplingRate;
 
     // TTS & STT
-    private String filePath;
     private TtsConverter ttsConverter;
     private SttConverter sttConverter;
 

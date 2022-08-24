@@ -16,27 +16,27 @@ public class RmqMediaPlayReq extends RmqAimOutgoing {
         // nothing
     }
 
-    public boolean send(CallInfo sessionInfo, String msgType) {
+    public boolean send(CallInfo callInfo, String filePath, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getDefaultHeader(msgType);
 
         Message msg = Message.newBuilder()
                 .setHeader(headerBuilder.build())
                 .setMediaPlayReq(MediaPlayReq.newBuilder()
-                        .setCallId(sessionInfo.getCallId())
-                        .setFilePath(sessionInfo.getFilePath()))
+                        .setCallId(callInfo.getCallId())
+                        .setFilePath(filePath))
                 .build();
 
         return sendTo(msg);
     }
 
-    public boolean send(int reasonCode, String reason, CallInfo sessionInfo, String msgType) {
+    public boolean send(int reasonCode, String reason, CallInfo callInfo, String filePath, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getFailHeader(msgType, reason, reasonCode);
 
         Message msg = Message.newBuilder()
                 .setHeader(headerBuilder.build())
                 .setMediaPlayReq(MediaPlayReq.newBuilder()
-                        .setCallId(sessionInfo.getCallId())
-                        .setFilePath(sessionInfo.getFilePath()))
+                        .setCallId(callInfo.getCallId())
+                        .setFilePath(filePath))
                 .build();
 
         return sendTo(msg);

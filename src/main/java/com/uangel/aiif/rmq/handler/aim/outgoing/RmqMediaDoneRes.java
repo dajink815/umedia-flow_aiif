@@ -41,4 +41,17 @@ public class RmqMediaDoneRes extends RmqAimOutgoing {
 
         return sendTo(msg);
     }
+
+    public boolean send(String tId, int reasonCode, String reason, String callId, String msgType) {
+        Header.Builder headerBuilder = RmqBuilder.getFailHeader(msgType, reason, reasonCode);
+        headerBuilder.setTId(tId);
+
+        Message msg = Message.newBuilder()
+                .setHeader(headerBuilder.build())
+                .setMediaDoneRes(MediaDoneRes.newBuilder()
+                        .setCallId(callId))
+                .build();
+
+        return sendTo(msg);
+    }
 }

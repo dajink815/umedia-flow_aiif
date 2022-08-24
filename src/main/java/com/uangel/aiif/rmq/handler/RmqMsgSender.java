@@ -104,13 +104,13 @@ public class RmqMsgSender {
         res.send(tId, reasonCode, reason, callId, RmqMsgType.MEDIA_START_RES);
     }
 
-    public void sendMediaPlayReq(CallInfo callInfo) {
+    public void sendMediaPlayReq(CallInfo callInfo, String filePath) {
         RmqMediaPlayReq req = new RmqMediaPlayReq();
-        req.send(callInfo, RmqMsgType.MEDIA_PLAY_REQ);
+        req.send(callInfo, filePath, RmqMsgType.MEDIA_PLAY_REQ);
     }
-    public void sendMediaPlayReq(int reasonCode, String reason, CallInfo callInfo) {
+    public void sendMediaPlayReq(int reasonCode, String reason, CallInfo callInfo, String filePath) {
         RmqMediaPlayReq req = new RmqMediaPlayReq();
-        req.send(reasonCode, reason, callInfo, RmqMsgType.MEDIA_PLAY_REQ);
+        req.send(reasonCode, reason, callInfo, filePath, RmqMsgType.MEDIA_PLAY_REQ);
     }
 
     public void sendMediaDoneRes(String tId, CallInfo callInfo) {
@@ -120,6 +120,10 @@ public class RmqMsgSender {
     public void sendMediaDoneRes(String tId, int reasonCode, String reason, CallInfo callInfo) {
         RmqMediaDoneRes res = new RmqMediaDoneRes();
         res.send(tId, reasonCode, reason, callInfo, RmqMsgType.MEDIA_DONE_RES);
+    }
+    public void sendMediaDoneRes(String tId, int reasonCode, String reason, String callId) {
+        RmqMediaDoneRes res = new RmqMediaDoneRes();
+        res.send(tId, reasonCode, reason, callId, RmqMsgType.MEDIA_DONE_RES);
     }
 
     public void sendMediaStopReq(CallInfo callInfo) {
