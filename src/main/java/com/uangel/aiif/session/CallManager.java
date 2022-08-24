@@ -1,11 +1,14 @@
 package com.uangel.aiif.session;
 
 import com.uangel.aiif.config.AiifConfig;
+import com.uangel.aiif.rtpcore.service.NettyChannelManager;
+import com.uangel.aiif.rtpcore.service.RtpChannelInfo;
 import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.session.model.CallInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,6 +18,7 @@ import java.util.concurrent.ConcurrentMap;
 public class CallManager {
     static final Logger log = LoggerFactory.getLogger(CallManager.class);
     private static final ConcurrentHashMap<String, CallInfo> callInfoMap = new ConcurrentHashMap<>();
+    private NettyChannelManager nettyChannelManager = NettyChannelManager.getInstance();
     private static CallManager callManager = null;
     private final AiifConfig config = AppInstance.getInstance().getConfig();
 
@@ -37,6 +41,12 @@ public class CallManager {
         }
 
         CallInfo callInfo = new CallInfo(callId);
+        RtpChannelInfo rtpChannelInfo = nettyChannelManager.allocPort(callInfo);
+        if(rtpChannelInfo == null){
+            log.warn("CallInfo [{}] Fail to allocate port", callId);
+            return null;
+        }
+        callInfo.setRtpChannelInfo(rtpChannelInfo);
         // Set Field
 
         callInfoMap.put(callId, callInfo);
@@ -56,7 +66,9 @@ public class CallManager {
 
     public void deleteCallInfo(String callId) {
         if (callId == null) return;
-        if (callInfoMap.remove(callId) != null) {
+        CallInfo callInfo = callInfoMap.remove(callId);
+        if (callInfo != null) {
+            callInfo.dealloc();
             log.warn("CallInfo [{}] Removed", callId);
         }
     }

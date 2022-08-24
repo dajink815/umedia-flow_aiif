@@ -1,6 +1,9 @@
 package com.uangel.aiif.config;
 
 import com.uangel.aiif.util.StringUtil;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
@@ -9,12 +12,15 @@ import org.slf4j.LoggerFactory;
 /**
  * @author dajin kim
  */
+@Getter
+@Setter
 public class AiifConfig extends DefaultConfig {
     static final Logger log = LoggerFactory.getLogger(AiifConfig.class);
 
     // SECTION
     private static final String SECTION_COMMON = "COMMON";
     private static final String SECTION_RMQ = "RMQ";
+    private static final String SECTION_NETTY = "NETTY";
 
     // FIELD - COMMON
     private static final String FIELD_HB_INTERVAL = "HB_INTERVAL";
@@ -51,6 +57,15 @@ public class AiifConfig extends DefaultConfig {
     private String aiwfPass;
     private int rmqThreadSize;
     private int rmqQueueSize;
+
+    private int rmqBufferCount;
+    private int rmqConsumerCount;
+    private int maxMessagesPerSec;
+    private int nettyEventLoopThreadCount;
+    private int udpRcvBufferSize;
+    private int udpSndBufferSize;
+    private int localUdpPortMin;
+    private int localUdpPortMax;
 
     public AiifConfig(String configPath) {
         super(configPath);
@@ -109,54 +124,16 @@ public class AiifConfig extends DefaultConfig {
         this.aiwfPass = getStrValue(SECTION_RMQ, FIELD_AIWF_PASS, "");
         this.rmqThreadSize = getIntValue(SECTION_RMQ, FIELD_THREAD_SIZE, 5);
         this.rmqQueueSize = getIntValue(SECTION_RMQ, FIELD_QUEUE_SIZE, 5);
-    }
 
-    // COMMON
-    public int getHbInterval() {
-        return hbInterval;
-    }
 
-    // RMQ
-    public String getAis() {
-        return ais;
-    }
-    public String getAim() {
-        return aim;
-    }
-    public String getAiwf() {
-        return aiwf;
-    }
-    public String getAiif() {
-        return aiif;
-    }
-    public String getHost() {
-        return host;
-    }
-    public String getUser() {
-        return user;
-    }
-    public int getPort() {
-        return port;
-    }
-    public String getPass() {
-        return pass;
-    }
-    public String getAiwfHost() {
-        return aiwfHost;
-    }
-    public String getAiwfUser() {
-        return aiwfUser;
-    }
-    public int getAiwfPort() {
-        return aiwfPort;
-    }
-    public String getAiwfPass() {
-        return aiwfPass;
-    }
-    public int getRmqThreadSize() {
-        return rmqThreadSize;
-    }
-    public int getRmqQueueSize() {
-        return rmqQueueSize;
+
+        this.rmqBufferCount = getIntValue(SECTION_NETTY, "RMQ_BUFFER_COUNT", 4096);
+        this.rmqConsumerCount = getIntValue(SECTION_NETTY, "RMQ_CONSUMER_COUNT", 128);
+        this.maxMessagesPerSec = getIntValue(SECTION_NETTY, "MAX_MESSAGES_PER_SEC", 0);
+        this.nettyEventLoopThreadCount = getIntValue(SECTION_NETTY, "NETTY_EVENT_LOOP_THREAD_COUNT", 64);
+        this.udpRcvBufferSize = getIntValue(SECTION_NETTY, "UDP_RCV_BUFFER_SIZE", 33554432);
+        this.udpSndBufferSize = getIntValue(SECTION_NETTY, "UDP_SND_BUFFER_SIZE", 16777216);
+        this.localUdpPortMin = getIntValue(SECTION_NETTY, "LOCAL_UDP_PORT_MIN", 10000);
+        this.localUdpPortMax = getIntValue(SECTION_NETTY, "LOCAL_UDP_PORT_MAX", 50000);
     }
 }

@@ -2,17 +2,25 @@ package com.uangel.aiif.session.model;
 
 import ai.media.stt.SttConverter;
 import ai.media.tts.TtsConverter;
+import com.uangel.aiif.rtpcore.service.NettyChannelManager;
+import com.uangel.aiif.rtpcore.service.RtpChannelInfo;
 import com.uangel.aiif.session.state.CallState;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 /**
  * @author dajin kim
  */
+@Getter
+@Setter
 public class CallInfo {
     private static final Logger log = LoggerFactory.getLogger(CallInfo.class);
+    protected static final NettyChannelManager nettyChannelManager = NettyChannelManager.getInstance();
     private final ReentrantLock lock = new ReentrantLock();
 
     private final String callId;
@@ -31,6 +39,8 @@ public class CallInfo {
     private String resultTxt;
     private TtsConverter ttsConverter;
     private SttConverter sttConverter;
+
+    private RtpChannelInfo rtpChannelInfo;
 
     private String logHeader = "";
 
@@ -81,6 +91,10 @@ public class CallInfo {
             log.info("{}SESSION Status Changed [{}] --> [{}]", logHeader, this.callState, callState);
             this.callState = callState;
         }
+    }
+
+    public void dealloc(){
+        nettyChannelManager.deallocPort(rtpChannelInfo.getUsingPort());
     }
 
     public int getSamplingRate() {

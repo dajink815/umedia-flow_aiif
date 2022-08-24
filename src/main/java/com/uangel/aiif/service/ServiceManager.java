@@ -2,6 +2,7 @@ package com.uangel.aiif.service;
 
 import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.RmqManager;
+import com.uangel.aiif.rtpcore.service.NettyChannelManager;
 import com.uangel.aiif.service.schedule.IntervalTaskManager;
 import com.uangel.aiif.util.SleepUtil;
 import org.slf4j.Logger;
@@ -65,6 +66,8 @@ public class ServiceManager {
         } catch (Exception e) {
             log.error("IntervalTaskManager.start.Exception", e);
         }
+
+        NettyChannelManager.getInstance().openRtpServer();
     }
 
     private void stopService() {
