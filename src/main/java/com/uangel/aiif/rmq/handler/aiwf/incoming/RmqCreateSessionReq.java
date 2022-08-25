@@ -31,10 +31,11 @@ public class RmqCreateSessionReq {
 
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
+        // Create Session
         String callId = req.getCallId();
         CallInfo callInfo = callManager.createCallInfo(callId);
         if (callInfo == null) {
-            log.warn("() ({}) () Fail Create Session", callId);
+            log.warn("() ({}) () CreateSessionReq Fail Create Session", callId);
             // Send Fail Response
             sender.sendCreateSessionRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
             return;

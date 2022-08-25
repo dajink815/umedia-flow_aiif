@@ -19,7 +19,7 @@ public class RmqAiwfConsumer {
         // For Test
         try {
             String json = JsonFormat.printer().includingDefaultValueFields().print(msg);
-            log.debug("RmqAiwfConsumer -->\r\n{}", json);
+            //log.debug("RmqAiwfConsumer -->\r\n{}", json);
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }

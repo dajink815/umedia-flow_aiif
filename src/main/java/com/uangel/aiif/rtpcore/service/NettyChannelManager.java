@@ -19,6 +19,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * NettyRTPServer 시작 종료, RTP Channel 할당 해제 (port 로 관리)
+ *
+ * @author kangmoo Heo
+ */
 @Getter
 @Setter
 @Slf4j
@@ -36,7 +41,7 @@ public class NettyChannelManager {
     private static final NettyChannelManager INSTANCE = new NettyChannelManager();
 
     private NettyChannelManager() {
-
+        // nothing
     }
 
     public static NettyChannelManager getInstance() {

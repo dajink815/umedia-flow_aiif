@@ -8,7 +8,6 @@ import com.uangel.aiif.session.model.CallInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 public class CallManager {
     static final Logger log = LoggerFactory.getLogger(CallManager.class);
     private static final ConcurrentHashMap<String, CallInfo> callInfoMap = new ConcurrentHashMap<>();
-    private NettyChannelManager nettyChannelManager = NettyChannelManager.getInstance();
+    private final NettyChannelManager nettyChannelManager = NettyChannelManager.getInstance();
     private static CallManager callManager = null;
     private final AiifConfig config = AppInstance.getInstance().getConfig();
 
@@ -47,7 +46,6 @@ public class CallManager {
             return null;
         }
         callInfo.setRtpChannelInfo(rtpChannelInfo);
-        // Set Field
 
         callInfoMap.put(callId, callInfo);
         log.warn("CallInfo [{}] Created", callId);

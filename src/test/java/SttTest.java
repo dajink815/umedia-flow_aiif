@@ -5,6 +5,7 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 import com.uangel.aiif.service.ServiceDefine;
+import com.uangel.aiif.util.SleepUtil;
 import org.junit.Test;
 // Imports the Google Cloud client library
 import com.google.cloud.speech.v1.RecognitionConfig.AudioEncoding;
@@ -147,6 +148,13 @@ public class SttTest {
                 .setLanguageCode(ServiceDefine.LANG_CODE.getStr())
                 .build();
 
+        sttConverter.start();
+
+        SleepUtil.trySleep(5000);
+
+        sttConverter.stop();
+
+        System.out.println(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
 
     }
 }

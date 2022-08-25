@@ -4,6 +4,7 @@ import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.service.schedule.base.IntervalTaskUnit;
 import com.uangel.aiif.service.schedule.handler.HbHandler;
+import com.uangel.aiif.service.schedule.handler.SessionMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ public class IntervalTaskManager {
     public void init(){
         AiifConfig config = AppInstance.getInstance().getConfig();
         addJob(HbHandler.class.getSimpleName(), new HbHandler(config.getHbInterval()));
+        addJob(SessionMonitor.class.getSimpleName(), new SessionMonitor(TASK_INTERVAL));
     }
 
     public static IntervalTaskManager getInstance() {

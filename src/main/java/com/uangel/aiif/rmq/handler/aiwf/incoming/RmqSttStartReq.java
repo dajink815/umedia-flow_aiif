@@ -2,9 +2,9 @@ package com.uangel.aiif.rmq.handler.aiwf.incoming;
 
 import ai.media.stt.SttConverter;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
+import com.uangel.aiif.rtpcore.service.RtpChannelInfo;
 import com.uangel.aiif.session.CallManager;
 import com.uangel.aiif.session.model.CallInfo;
-import com.uangel.aiif.util.StringUtil;
 import com.uangel.protobuf.Header;
 import com.uangel.protobuf.Message;
 import com.uangel.protobuf.SttStartReq;
@@ -12,6 +12,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.channel.Channel;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -58,35 +59,26 @@ public class RmqSttStartReq {
             return;
         }
 
-        // todo Converter Test
+        log.debug("SttStartReq Credential : {}", System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
+
         // STT Start
         int sttDur = req.getDuration();
-        sttConverter.start();
+        sttConverter.start();         // RTP 처리 Start - sttConverter isRunning Flag True
         log.debug("{}RmqSttStartReq STT Start - Duration [{}]", callInfo.getLogHeader(), sttDur);
-
-        // RTP 처리 Start
-
-        // RTP 수신 결과에 따라 Response
-
-
 
         // Send Success Response
         sender.sendSttStartRes(header.getTId(), callInfo);
 
         // Schedule
         executors.schedule(() ->{
-            // RTP 처리 Stop
-
             // STT Stop
-            sttConverter.stop();
-
+            sttConverter.stop();    // RTP 처리 Stop - sttConverter isRunning Flag False
             // STT 결과 처리
             String result = Optional.ofNullable(sttConverter.getResultTexts()).filter(o -> !o.isEmpty()).map(o -> o.get(o.size() - 1)).orElse("");
             log.debug("{}RmqSttStartReq STT Result : {}", callInfo.getLogHeader(), result);
 
             // Send SttResultReq
             sender.sendSttResultReq(callInfo, result);
-
         }, sttDur, TimeUnit.MILLISECONDS);
 
     }

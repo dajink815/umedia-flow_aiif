@@ -39,9 +39,9 @@ public class RmqMsgSender {
         res.send(tId, reasonCode, reason, callId, RmqMsgType.CREATE_SESSION_RES);
     }
 
-    public void sendDelSessionRes(String tId, CallInfo callInfo) {
+    public void sendDelSessionRes(String tId, String callId) {
         RmqDelSessionRes res = new RmqDelSessionRes();
-        res.send(tId, callInfo, RmqMsgType.DEL_SESSION_RES);
+        res.send(tId, callId, RmqMsgType.DEL_SESSION_RES);
     }
     public void sendDelSessionRes(String tId, int reasonCode, String reason, String callId) {
         RmqDelSessionRes res = new RmqDelSessionRes();

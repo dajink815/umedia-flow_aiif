@@ -33,6 +33,7 @@ public class NettyRTPServer {
     NioEventLoopGroup group;
 
     public NettyRTPServer() {
+        // nothing
     }
 
     public NettyRTPServer run(int consumerCount, int bufferSize) {
@@ -122,9 +123,6 @@ public class NettyRTPServer {
                 logger.warn("Channel Close Err", e);
             }
         }
-    }
-
-    public void closeChannel(int port) {
     }
 
 }

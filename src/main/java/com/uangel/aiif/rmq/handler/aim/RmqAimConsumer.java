@@ -22,7 +22,7 @@ public class RmqAimConsumer {
         // For Test
         try {
             String json = JsonFormat.printer().includingDefaultValueFields().print(msg);
-            log.debug("RmqAimConsumer -->\r\n{}", json);
+            //log.debug("RmqAimConsumer -->\r\n{}", json);
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }

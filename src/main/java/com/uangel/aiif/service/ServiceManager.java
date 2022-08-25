@@ -18,6 +18,7 @@ public class ServiceManager {
     private boolean isQuit = false;
     private RmqManager rmqManager = null;
     private IntervalTaskManager intervalTaskManager = null;
+    private NettyChannelManager nettyChannelManager = null;
 
     private ServiceManager() {
         instance.setConfig(new AiifConfig(instance.getConfigPath()));
@@ -67,7 +68,8 @@ public class ServiceManager {
             log.error("IntervalTaskManager.start.Exception", e);
         }
 
-        NettyChannelManager.getInstance().openRtpServer();
+        nettyChannelManager = NettyChannelManager.getInstance();
+        nettyChannelManager.openRtpServer();
     }
 
     private void stopService() {
@@ -78,6 +80,9 @@ public class ServiceManager {
 
         if (intervalTaskManager != null)
             intervalTaskManager.stop();
+
+        if (nettyChannelManager != null)
+            nettyChannelManager.closeRtpServer();
     }
 
 
