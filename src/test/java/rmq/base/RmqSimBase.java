@@ -23,22 +23,21 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 
 /**
  * @author kangmoo Heo
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({RmqManager.class})
-@PowerMockIgnore({"javax.management.*", "javax.xml.*", "org.w3c.*", "org.apache.apache._", "com.sun.*", "com.sun.org.apache.xerces.*", "org.apache.http.conn.ssl.", "javax.net.ssl.", "javax.crypto.*"})
 @Slf4j
 public class RmqSimBase {
 
@@ -80,10 +79,7 @@ public class RmqSimBase {
 
     public static Method rmqMsgHandler;
 
-    public static void makeRmqManagerMock() {
-        PowerMockito.mockStatic(RmqManager.class);
-        RmqManager rmqManager = mock(RmqManager.class);
-        BDDMockito.given(RmqManager.getInstance()).willReturn(rmqManager);
+    public static void makeRmqManagerMock() throws NoSuchFieldException, IllegalAccessException {
 
         RmqClient mockRmqClient = mock(RmqClient.class);
         Mockito.when(mockRmqClient.getQueueName()).thenReturn("MOCKED_RMQ");
@@ -95,7 +91,12 @@ public class RmqSimBase {
             return true;
         });
 
-        Mockito.when(rmqManager.getRmqClient(anyString())).thenReturn(mockRmqClient);
+        Field f = RmqManager.class.getDeclaredField("rmqClientMap");
+        f.setAccessible(true);
+        ConcurrentHashMap<String, RmqClient> rmqClientMap = (ConcurrentHashMap<String, RmqClient>) f.get(RmqManager.getInstance());
+        Set<String> keys = rmqClientMap.keySet();
+        keys.forEach(o -> rmqClientMap.put(o, mockRmqClient));
+        f.setAccessible(false);
     }
 
     protected void handleMessage(MessageBuilder message){
