@@ -6,6 +6,7 @@
 package com.uangel.aiif.rmq.module;
 
 import com.google.protobuf.util.JsonFormat;
+import com.uangel.aiif.util.StringUtil;
 import com.uangel.protobuf.Header;
 import com.uangel.protobuf.Message;
 import com.uangel.aiif.rmq.module.transport.RmqReceiver;
@@ -99,19 +100,16 @@ public class RmqServer {
             }
 
             Header header = rmqMsg.getHeader();
-            int reasonCode = header.getReasonCode();
             String msgType = header.getType();
             String msgFrom = header.getMsgFrom();
 
             // HB
             if (rmqMsg.getBodyCase().getNumber() == Message.IHBRES_FIELD_NUMBER) {
                 if (suppr.touch(msgType + msgFrom)) {
-                    log.info("[RMQ MESSAGE] onReceived [{}] [{}] <-- [{}]", msgType, reasonCode, msgFrom);
-                    printMsg(prettyMsg, ts);
+                    printMsg(rmqMsg, prettyMsg, ts);
                 }
             } else {
-                log.info("[RMQ MESSAGE] onReceived [{}] [{}] <-- [{}]", msgType, reasonCode, msgFrom);
-                printMsg(prettyMsg, ts);
+                printMsg(rmqMsg, prettyMsg, ts);
             }
 
             try {
@@ -122,14 +120,31 @@ public class RmqServer {
             }
         }
 
-        private void printMsg(String prettyMsg, Date ts) {
+        private void printMsg(Message rmqMsg, String prettyMsg, Date ts) {
+            Header header = rmqMsg.getHeader();
+            int reasonCode = header.getReasonCode();
+            String msgType = header.getType();
+            String msgFrom = header.getMsgFrom();
+
+            log.info("[RMQ MESSAGE] onReceived [{}] [{}] <-- [{}]", msgType, reasonCode, msgFrom);
+
             if (ts != null) {
                 String time = DateFormatUtil.fastFormatYmdHmsS(ts);
                 log.debug("[RMQ MESSAGE] onReceived : {} {}", prettyMsg, time);
             } else {
                 log.debug("[RMQ MESSAGE] onReceived : {}", prettyMsg);
             }
+
+            // Check Body Type
+            String bodyCase = rmqMsg.getBodyCase().toString();
+            String typeCheck = StringUtil.removeUnderBar(msgType);
+            if (!bodyCase.equalsIgnoreCase(typeCheck)) {
+                log.warn("MessageCallback.onReceived Check Body type [{}]", bodyCase);
+            } else {
+                log.debug("MessageCallback.onReceived Body type [{}]", bodyCase);
+            }
         }
+
     }
 
 }

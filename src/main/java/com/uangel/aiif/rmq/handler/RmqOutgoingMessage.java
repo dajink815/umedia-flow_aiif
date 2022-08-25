@@ -44,22 +44,12 @@ public class RmqOutgoingMessage {
 
             if (rmqMessage.getBodyCase().getNumber() == Message.IHBREQ_FIELD_NUMBER) {
                 if (suppr.touch(msgType + header.getMsgFrom())) {
-                    log.info("[RMQ MESSAGE] send [{}] [{}] --> [{}]", msgType, header.getReasonCode(), target);
-                    log.debug("[RMQ MESSAGE] Json --> {}", json);
+                    printMsg(rmqMessage, json);
                 }
             } else {
-                log.info("[RMQ MESSAGE] send [{}] [{}] --> [{}]", msgType, header.getReasonCode(), target);
-                log.debug("[RMQ MESSAGE] Json --> {}", json);
+                printMsg(rmqMessage, json);
             }
 
-            // Check Body Type
-            String bodyCase = rmqMessage.getBodyCase().toString();
-            String typeCheck = StringUtil.removeUnderBar(msgType);
-            if (!bodyCase.equalsIgnoreCase(typeCheck)) {
-                log.warn("RmqOutgoingMessage.sendTo Check Body type [{}]", bodyCase);
-            } else {
-                log.debug("RmqOutgoingMessage.sendTo Body type [{}]", bodyCase);
-            }
 
             RmqClient client = RmqManager.getInstance().getRmqClient(target);
             if (client != null) {
@@ -76,5 +66,22 @@ public class RmqOutgoingMessage {
         }
 
         return result;
+    }
+
+    private void printMsg(Message rmqMessage, String json) {
+        Header header = rmqMessage.getHeader();
+        String msgType = header.getType();
+
+        log.info("[RMQ MESSAGE] send [{}] [{}] --> [{}]", msgType, header.getReasonCode(), target);
+        log.debug("[RMQ MESSAGE] Json --> {}", json);
+
+        // Check Body Type
+        String bodyCase = rmqMessage.getBodyCase().toString();
+        String typeCheck = StringUtil.removeUnderBar(msgType);
+        if (!bodyCase.equalsIgnoreCase(typeCheck)) {
+            log.warn("RmqOutgoingMessage.sendTo Check Body type [{}]", bodyCase);
+        } else {
+            log.debug("RmqOutgoingMessage.sendTo Body type [{}]", bodyCase);
+        }
     }
 }
