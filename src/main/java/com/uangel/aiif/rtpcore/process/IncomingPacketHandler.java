@@ -26,8 +26,9 @@ public class IncomingPacketHandler extends SimpleChannelInboundHandler<DatagramP
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
         ByteBuf buf = msg.content();
-        RtpHeader rtpHeader;
-        rtpHeader = new RtpHeader(buf.array(), 0);
+        byte[] data = new byte[buf.readableBytes()];
+        buf.readBytes(data);
+        RtpHeader rtpHeader = new RtpHeader(data, 0);
 
         CallInfo callInfo = nettyChannelManager.getCallByPort(localPort);
         if(!callInfo.getSttConverter().isRunning()) return;
