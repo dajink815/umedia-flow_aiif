@@ -42,6 +42,7 @@ public class AiifConfig extends DefaultConfig {
     private static final String FIELD_QUEUE_SIZE = "QUEUE_SIZE";
     // FIELD - AI
     private static final String FIELD_MEDIA_FILE_PATH = "MEDIA_FILE_PATH";
+    private static final String FIELD_STT_THREAD_SIZE = "STT_THREAD_SIZE";
 
     // VALUE - COMMON
     private int hbInterval;
@@ -61,6 +62,7 @@ public class AiifConfig extends DefaultConfig {
     private int rmqThreadSize;
     private int rmqQueueSize;
     // VALUE - NETTY
+    private String serverIp;
     private int rmqBufferCount;
     private int rmqConsumerCount;
     private int maxMessagesPerSec;
@@ -71,6 +73,7 @@ public class AiifConfig extends DefaultConfig {
     private int localUdpPortMax;
     // VALUE - AI
     private String mediaFilePath;
+    private int sttThreadSize;
 
     public AiifConfig(String configPath) {
         super(configPath);
@@ -134,6 +137,7 @@ public class AiifConfig extends DefaultConfig {
     }
 
     private void loadNettyConfig() {
+        this.serverIp = getStrValue(SECTION_NETTY, "SERVER_IP", "");
         this.rmqBufferCount = getIntValue(SECTION_NETTY, "RMQ_BUFFER_COUNT", 4096);
         this.rmqConsumerCount = getIntValue(SECTION_NETTY, "RMQ_CONSUMER_COUNT", 128);
         this.maxMessagesPerSec = getIntValue(SECTION_NETTY, "MAX_MESSAGES_PER_SEC", 0);
@@ -146,5 +150,6 @@ public class AiifConfig extends DefaultConfig {
 
     private void loadAiConfig() {
         this.mediaFilePath = getStrValue(SECTION_AI, FIELD_MEDIA_FILE_PATH, "");
+        this.sttThreadSize = getIntValue(SECTION_AI, FIELD_STT_THREAD_SIZE, 10);
     }
 }

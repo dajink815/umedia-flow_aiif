@@ -2,6 +2,7 @@ package com.uangel.aiif.rmq.handler.aim.outgoing;
 
 import com.uangel.aiif.rmq.common.RmqBuilder;
 import com.uangel.aiif.rmq.handler.aim.RmqAimOutgoing;
+import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.session.model.CallInfo;
 import com.uangel.protobuf.Header;
 import com.uangel.protobuf.MediaStartRes;
@@ -24,7 +25,7 @@ public class RmqMediaStartRes extends RmqAimOutgoing {
                 .setHeader(headerBuilder.build())
                 .setMediaStartRes(MediaStartRes.newBuilder()
                         .setCallId(callInfo.getCallId())
-                        // todo RTP_IP : AIIF IP
+                        .setRtpIp(AppInstance.getInstance().getConfig().getServerIp())
                         .setRtpPort(callInfo.getRtpPort()))
                 .build();
 
@@ -39,7 +40,7 @@ public class RmqMediaStartRes extends RmqAimOutgoing {
                 .setHeader(headerBuilder.build())
                 .setMediaStartRes(MediaStartRes.newBuilder()
                         .setCallId(callInfo.getCallId())
-                        // todo RTP_IP : AIIF IP
+                        .setRtpIp(AppInstance.getInstance().getConfig().getServerIp())
                         .setRtpPort(callInfo.getRtpPort()))
                 .build();
 

@@ -57,9 +57,6 @@ public class ServiceManager {
         rmqManager = RmqManager.getInstance();
         rmqManager.start();
 
-        // todo NettyManager
-
-
         this.intervalTaskManager = IntervalTaskManager.getInstance();
         try {
             this.intervalTaskManager.init();

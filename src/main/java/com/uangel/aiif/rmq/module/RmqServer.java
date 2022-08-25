@@ -105,10 +105,10 @@ public class RmqServer {
 
             // HB
             if (rmqMsg.getBodyCase().getNumber() == Message.IHBRES_FIELD_NUMBER) {
-                //if (suppr.touch(msgType + msgFrom)) {
+                if (suppr.touch(msgType + msgFrom)) {
                     log.info("[RMQ MESSAGE] onReceived [{}] [{}] <-- [{}]", msgType, reasonCode, msgFrom);
                     printMsg(prettyMsg, ts);
-                //}
+                }
             } else {
                 log.info("[RMQ MESSAGE] onReceived [{}] [{}] <-- [{}]", msgType, reasonCode, msgFrom);
                 printMsg(prettyMsg, ts);

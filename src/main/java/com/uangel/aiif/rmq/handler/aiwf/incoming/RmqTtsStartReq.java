@@ -25,7 +25,7 @@ public class RmqTtsStartReq {
     static final Logger log = LoggerFactory.getLogger(RmqTtsStartReq.class);
     private static final CallManager callManager = CallManager.getInstance();
     private static final TtsFileManager ttsFileManager = TtsFileManager.getInstance();
-    private static final String MEDIA_DIR = "/tts/";
+    private static final String MEDIA_DIR = "/media/";
     private static final String CACHE_DIR = "/cache/";
 
     public RmqTtsStartReq() {
@@ -64,6 +64,8 @@ public class RmqTtsStartReq {
         String filePath = null;
 
         if (TtsType.FILE.equals(ttsType)) {
+            log.debug("{}TtsStartReq FILE Type : {}", callInfo.getLogHeader(), content);
+
             // 파일 경로 처리 필요?
 
             // 파일 존재 하지 않으면 Fail Response
@@ -79,13 +81,15 @@ public class RmqTtsStartReq {
             int key = content.hashCode();
             String ttsFile = ttsFileManager.getTtsFileName(key);
 
+            log.debug("{}TtsStartReq MENT Type : {}", callInfo.getLogHeader(), ttsFile);
+
             // 1. 존재 하면 기존 파일 경로 그대로 AIM 에 재생 요청
             if (ttsFile != null) {
                 filePath = ttsFile;
             }
             // 2. 없다면 content 를 wav 파일로 변환 하여 AIM 에 재생 요청
             else {
-                // 파일명 규칙
+                // todo 파일명 규칙
                 String fileName = callId + ServiceDefine.MEDIA_FILE_EXTENSION.getStr();
                 AiifConfig config = AppInstance.getInstance().getConfig();
                 filePath = config.getMediaFilePath() + CACHE_DIR + fileName;

@@ -55,8 +55,6 @@ public class RmqMediaStartReq {
         }
         callInfo.setSamplingRate(samplingRate);
 
-        // todo TTS, STT Sampling Rate 별개로?
-
         SttConverter sttConverter = SttConverter.newBuilder()
                 .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
                 .setSampleRateHertz(samplingRate)

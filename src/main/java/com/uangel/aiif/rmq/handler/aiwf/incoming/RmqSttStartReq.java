@@ -2,7 +2,7 @@ package com.uangel.aiif.rmq.handler.aiwf.incoming;
 
 import ai.media.stt.SttConverter;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
-import com.uangel.aiif.rtpcore.service.RtpChannelInfo;
+import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.session.CallManager;
 import com.uangel.aiif.session.model.CallInfo;
 import com.uangel.protobuf.Header;
@@ -12,7 +12,6 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.channel.Channel;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,8 +25,7 @@ import static com.uangel.aiif.rmq.common.RmqMsgType.*;
 public class RmqSttStartReq {
     static final Logger log = LoggerFactory.getLogger(RmqSttStartReq.class);
     private static final CallManager callManager = CallManager.getInstance();
-    // todo ThreadPool Size Config
-    private static final ScheduledExecutorService executors = Executors.newScheduledThreadPool(1,
+    private static final ScheduledExecutorService executors = Executors.newScheduledThreadPool(AppInstance.getInstance().getConfig().getSttThreadSize(),
             new BasicThreadFactory.Builder().namingPattern("SttStartReq-%d").build());
 
     public RmqSttStartReq() {

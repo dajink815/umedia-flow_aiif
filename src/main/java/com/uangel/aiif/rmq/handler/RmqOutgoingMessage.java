@@ -43,10 +43,10 @@ public class RmqOutgoingMessage {
             String msgType = header.getType();
 
             if (rmqMessage.getBodyCase().getNumber() == Message.IHBREQ_FIELD_NUMBER) {
-                //if (suppr.touch(msgType + header.getMsgFrom())) {
+                if (suppr.touch(msgType + header.getMsgFrom())) {
                     log.info("[RMQ MESSAGE] send [{}] [{}] --> [{}]", msgType, header.getReasonCode(), target);
                     log.debug("[RMQ MESSAGE] Json --> {}", json);
-                //}
+                }
             } else {
                 log.info("[RMQ MESSAGE] send [{}] [{}] --> [{}]", msgType, header.getReasonCode(), target);
                 log.debug("[RMQ MESSAGE] Json --> {}", json);

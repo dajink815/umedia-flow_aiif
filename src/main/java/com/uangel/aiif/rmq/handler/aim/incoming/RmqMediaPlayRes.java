@@ -21,8 +21,7 @@ public class RmqMediaPlayRes {
         // res check isEmpty
 
         String callId = res.getCallId();
-        // 예상 재생 시간 todo protoBuf 필드 추가
-        int duration = 5000;
+        int duration = res.getDuration();  // todo MediaDone Timer
 
         log.info("() ({}) () MediaPlayRes - Media Play Time : {} (ms)", callId, duration);
     }
