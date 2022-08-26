@@ -27,20 +27,10 @@ public class IncomingPacketHandler extends SimpleChannelInboundHandler<DatagramP
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
         ByteBuf buf = msg.content();
         byte[] data = new byte[buf.readableBytes()];
-        buf.readBytes(data);
-        RtpHeader rtpHeader;
-        try {
-            rtpHeader = new RtpHeader(data, 0);
-        } catch (Exception e) {
-            // Ignore Wrong Packet.
-            return;
-        }
 
         CallInfo callInfo = nettyChannelManager.getCallByPort(localPort);
         if(!callInfo.getSttConverter().isRunning()) return;
 
-        byte[] rtpPayload = new byte[rtpHeader.getPayloadLength()];
-        System.arraycopy(rtpHeader.getData(), rtpHeader.getPayloadPosition(), rtpPayload, 0, rtpHeader.getPayloadLength());
-        callInfo.getSttConverter().inputData(rtpPayload);
+        callInfo.getSttConverter().inputData(data);
     }
 }
