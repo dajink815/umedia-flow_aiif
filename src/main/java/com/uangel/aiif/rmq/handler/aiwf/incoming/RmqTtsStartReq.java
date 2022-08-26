@@ -3,7 +3,6 @@ package com.uangel.aiif.rmq.handler.aiwf.incoming;
 import ai.media.tts.TtsConverter;
 import com.uangel.aiif.ai.google.tts.TtsFileManager;
 import com.uangel.aiif.ai.google.tts.TtsType;
-import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
 import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.service.ServiceDefine;
@@ -61,45 +60,54 @@ public class RmqTtsStartReq {
         // TTS Start
         TtsType ttsType = TtsType.getTypeEnum(req.getType());
         String content = req.getContent();
-        String filePath = null;
+        String mediaPlayPath = null;
+
+        String fileBasePath = AppInstance.getInstance().getConfig().getMediaFilePath();
 
         if (TtsType.FILE.equals(ttsType)) {
             log.debug("{}TtsStartReq FILE Type : {}", callInfo.getLogHeader(), content);
-
-            // 파일 경로 처리 필요?
+            // 파일 서치 경로 -> BaseDir / MEDIA_DIR / AIWF 에서 전달 받은 파일 명
 
             // 파일 존재 하지 않으면 Fail Response
-            if (!FileUtil.isExist(content)) {
-                log.warn("{}TtsStartReq [{}] File Not Exist", callInfo.getLogHeader(), content);
+            if (!FileUtil.isExist(fileBasePath + MEDIA_DIR + content)) {
+                log.warn("{}TtsStartReq [{}] File Not Exist", callInfo.getLogHeader(), fileBasePath + MEDIA_DIR + content);
                 sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId);
                 return;
             }
-            filePath = content;
+            // AIM 에 경로 전달 시, BaseDir 없이
+            mediaPlayPath = MEDIA_DIR + content;
 
         } else if (TtsType.MENT.equals(ttsType)) {
             // 기존에 만들어 둔 파일 존재 하는지 확인 - 멘트 hashCode 로 파일명 조회
             int key = content.hashCode();
-            String ttsFile = ttsFileManager.getTtsFileName(key);
-
-            log.debug("{}TtsStartReq MENT Type : {}", callInfo.getLogHeader(), ttsFile);
+            // BaseDir 없이 -> / CACHE_DIR / 파일 명으로 존재
+            String cachedPath = ttsFileManager.getTtsFileName(key);
+            log.debug("{}TtsStartReq MENT Type : {}", callInfo.getLogHeader(), cachedPath);
 
             // 1. 존재 하면 기존 파일 경로 그대로 AIM 에 재생 요청
-            if (ttsFile != null) {
-                filePath = ttsFile;
+            if (cachedPath != null) {
+                mediaPlayPath = cachedPath;
             }
             // 2. 없다면 content 를 wav 파일로 변환 하여 AIM 에 재생 요청
             else {
                 // todo 파일명 규칙
-                String fileName = callId + ServiceDefine.MEDIA_FILE_EXTENSION.getStr();
-                AiifConfig config = AppInstance.getInstance().getConfig();
-                filePath = config.getMediaFilePath() + CACHE_DIR + fileName;
+                String fileName = header.getTId() + ServiceDefine.MEDIA_FILE_EXTENSION.getStr();
+                // AIM 에 경로 전달 시, BaseDir 없이
+                mediaPlayPath = CACHE_DIR + fileName;
+                log.debug("{}TtsStartReq Convert Text({}) to File : {}", callInfo.getLogHeader(), content, mediaPlayPath);
 
-                // 2-1. TtsConverter 이용해 멘트를 byte array 변환
-                byte[] data = ttsConverter.convertText(content).toByteArray();
-                // 2-2. byte array 를 wav 파일로 변환
-                FileUtil.byteArrayToFile(data, filePath);
-                // 2-3. 멘트, 파일 이름 저장 하여 관리
-                ttsFileManager.addTtsFile(key, filePath);
+                try {
+                    // 2-1. TtsConverter 이용해 멘트를 byte array 변환
+                    byte[] data = ttsConverter.convertText(content).toByteArray();
+                    // 2-2. byte array 를 wav 파일로 변환
+                    FileUtil.byteArrayToFile(data, fileBasePath + mediaPlayPath);
+                    // 2-3. 멘트, 파일 이름 저장 하여 관리
+                    ttsFileManager.addTtsFile(key, mediaPlayPath);
+                } catch (Exception e) {
+                    log.error("{}RmqTtsStartRes.convertTts.Exception ", callInfo.getLogHeader(), e);
+                    sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId);
+                    return;
+                }
             }
 
         } else {
@@ -110,7 +118,7 @@ public class RmqTtsStartReq {
         // Send Success Response
         sender.sendTtsStartRes(header.getTId(), callInfo);
         // Send MediaPlayReq
-        sender.sendMediaPlayReq(callInfo, filePath);
+        sender.sendMediaPlayReq(callInfo, mediaPlayPath);
     }
 
 
