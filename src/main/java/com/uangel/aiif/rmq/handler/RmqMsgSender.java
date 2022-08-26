@@ -79,14 +79,14 @@ public class RmqMsgSender {
         res.send(tId, reasonCode, reason, callId, RmqMsgType.STT_START_RES);
     }
 
-    public void sendSttResultReq(CallInfo callInfo, String resultTxt) {
+    public void sendSttResultReq(String tId, CallInfo callInfo, String resultTxt) {
         RmqSttResultReq req = new RmqSttResultReq();
-        req.send(callInfo, resultTxt, RmqMsgType.STT_RESULT_REQ);
+        req.send(tId, callInfo, resultTxt, RmqMsgType.STT_RESULT_REQ);
 
     }
-    public void sendSttResultReq(int reasonCode, String reason, CallInfo callInfo, String resultTxt) {
+    public void sendSttResultReq(String tId, int reasonCode, String reason, CallInfo callInfo, String resultTxt) {
         RmqSttResultReq req = new RmqSttResultReq();
-        req.send(reasonCode, reason, callInfo, resultTxt,  RmqMsgType.STT_RESULT_REQ);
+        req.send(tId, reasonCode, reason, callInfo, resultTxt,  RmqMsgType.STT_RESULT_REQ);
 
     }
 

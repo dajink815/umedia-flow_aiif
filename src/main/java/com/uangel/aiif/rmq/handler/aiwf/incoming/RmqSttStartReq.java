@@ -61,8 +61,8 @@ public class RmqSttStartReq {
 
         // STT Start
         int sttDur = req.getDuration();
-        sttConverter.start();         // RTP 처리 Start - sttConverter isRunning Flag True
         log.debug("{}RmqSttStartReq STT Start - Duration [{}]", callInfo.getLogHeader(), sttDur);
+        sttConverter.start();         // RTP 처리 Start - sttConverter isRunning Flag True
 
         // Send Success Response
         sender.sendSttStartRes(header.getTId(), callInfo);
@@ -76,7 +76,7 @@ public class RmqSttStartReq {
             log.debug("{}RmqSttStartReq STT Result : {}", callInfo.getLogHeader(), result);
 
             // Send SttResultReq
-            sender.sendSttResultReq(callInfo, result);
+            sender.sendSttResultReq(header.getTId(), callInfo, result);
         }, sttDur, TimeUnit.MILLISECONDS);
 
     }

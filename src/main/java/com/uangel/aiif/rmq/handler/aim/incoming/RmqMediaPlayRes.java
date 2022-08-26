@@ -21,8 +21,8 @@ public class RmqMediaPlayRes {
         // res check isEmpty
 
         String callId = res.getCallId();
-        int duration = res.getDuration();  // todo MediaDone Timer
+        //int duration = res.getDuration();  // todo MediaDone Timer
 
-        log.info("() ({}) () MediaPlayRes - Media Play Time : {} (ms)", callId, duration);
+        //log.info("() ({}) () MediaPlayRes - Media Play Time : {} (ms)", callId, duration);
     }
 }

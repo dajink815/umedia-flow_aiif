@@ -16,8 +16,10 @@ public class RmqSttResultReq extends RmqAiwfOutgoing {
         // nothing
     }
 
-    public boolean send(CallInfo callInfo, String resultTxt, String msgType) {
+    public boolean send(String tId, CallInfo callInfo, String resultTxt, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getDefaultHeader(msgType);
+        // SttStartReq 와 동일한 tId
+        headerBuilder.setTId(tId);
 
         Message msg = Message.newBuilder()
                 .setHeader(headerBuilder.build())
@@ -29,8 +31,9 @@ public class RmqSttResultReq extends RmqAiwfOutgoing {
         return sendTo(msg);
     }
 
-    public boolean send(int reasonCode, String reason, CallInfo callInfo, String resultTxt, String msgType) {
+    public boolean send(String tId, int reasonCode, String reason, CallInfo callInfo, String resultTxt, String msgType) {
         Header.Builder headerBuilder = RmqBuilder.getFailHeader(msgType, reason, reasonCode);
+        headerBuilder.setTId(tId);
 
         Message msg = Message.newBuilder()
                 .setHeader(headerBuilder.build())
