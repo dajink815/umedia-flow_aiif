@@ -78,10 +78,8 @@ public class RmqTtsStartReq {
             mediaPlayPath = MEDIA_DIR + content;
 
         } else if (TtsType.MENT.equals(ttsType)) {
-            // 기존에 만들어 둔 파일 존재 하는지 확인 - 멘트 hashCode 로 파일명 조회
-            int key = content.hashCode();
-            // BaseDir 없이 -> / CACHE_DIR / 파일 명으로 존재
-            String cachedPath = ttsFileManager.getTtsFileName(key);
+            // 기존에 만들어 둔 파일 존재 하는지 확인 (BaseDir 없이 -> /CACHE_DIR/FileName 으로 존재)
+            String cachedPath = ttsFileManager.getTtsFileName(content);
             log.debug("{}TtsStartReq MENT Type : {}", callInfo.getLogHeader(), cachedPath);
 
             // 1. 존재 하면 기존 파일 경로 그대로 AIM 에 재생 요청
@@ -90,23 +88,30 @@ public class RmqTtsStartReq {
             }
             // 2. 없다면 content 를 wav 파일로 변환 하여 AIM 에 재생 요청
             else {
-                // todo 파일명 규칙
-                String fileName = header.getTId() + ServiceDefine.MEDIA_FILE_EXTENSION.getStr();
+                // 파일명 규칙 - 멘트 hashCode
                 // AIM 에 경로 전달 시, BaseDir 없이
-                mediaPlayPath = CACHE_DIR + fileName;
-                log.debug("{}TtsStartReq Convert Text({}) to File : {}", callInfo.getLogHeader(), content, mediaPlayPath);
+                mediaPlayPath = CACHE_DIR + content.hashCode() + ServiceDefine.MEDIA_FILE_EXTENSION.getStr();
+                String absolutePath = fileBasePath + mediaPlayPath;
 
-                try {
-                    // 2-1. TtsConverter 이용해 멘트를 byte array 변환
-                    byte[] data = ttsConverter.convertText(content).toByteArray();
-                    // 2-2. byte array 를 wav 파일로 변환
-                    FileUtil.byteArrayToFile(data, fileBasePath + mediaPlayPath);
-                    // 2-3. 멘트, 파일 이름 저장 하여 관리
-                    ttsFileManager.addTtsFile(key, mediaPlayPath);
-                } catch (Exception e) {
-                    log.error("{}RmqTtsStartRes.convertTts.Exception ", callInfo.getLogHeader(), e);
-                    sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId);
-                    return;
+                if (FileUtil.isExist(absolutePath)) {
+                    log.debug("{}TtsStartReq File [{}] Already Exist", callInfo.getLogHeader(), mediaPlayPath);
+                    // 파일만 존재, 메모리에 정보 없을 경우 추가
+                    ttsFileManager.addTtsFile(content, mediaPlayPath);
+                } else {
+                    log.debug("{}TtsStartReq Convert Text({}) to File : {}", callInfo.getLogHeader(), content, mediaPlayPath);
+
+                    try {
+                        // 2-1. TtsConverter 이용해 멘트를 byte array 변환
+                        byte[] data = ttsConverter.convertText(content).toByteArray();
+                        // 2-2. byte array 를 wav 파일로 변환
+                        FileUtil.byteArrayToFile(data, absolutePath);
+                        // 2-3. 멘트, 파일 이름 저장 하여 관리
+                        ttsFileManager.addTtsFile(content, mediaPlayPath);
+                    } catch (Exception e) {
+                        log.error("{}RmqTtsStartRes.convertTts.Exception ", callInfo.getLogHeader(), e);
+                        sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId);
+                        return;
+                    }
                 }
             }
 

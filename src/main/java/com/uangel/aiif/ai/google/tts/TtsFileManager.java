@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TtsFileManager {
     static final Logger log = LoggerFactory.getLogger(TtsFileManager.class);
     private static TtsFileManager ttsFileManager = null;
-    private static final ConcurrentHashMap<Integer, String> ttsFileMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Integer, TTsFileInfo> ttsFileMap2 = new ConcurrentHashMap<>();
 
     private TtsFileManager() {
         // nothing
@@ -23,28 +23,47 @@ public class TtsFileManager {
         return ttsFileManager;
     }
 
+    public void addTtsFile(String content, String fileName) {
+        this.addTtsFile(content.hashCode(), fileName);
+    }
     public void addTtsFile(int key, String fileName) {
-        if (ttsFileMap.containsKey(key)) {
+        if (ttsFileMap2.containsKey(key)) {
             log.error("TTS File [{}] Exist", fileName);
             return;
         }
 
-        ttsFileMap.put(key, fileName);
+        TTsFileInfo fileInfo = new TTsFileInfo(key, fileName);
+        ttsFileMap2.put(key, fileInfo);
         log.warn("TTS File [{}] Added", fileName);
     }
 
+    public String getTtsFileName(String content) {
+        return this.getTtsFileName(content.hashCode());
+    }
     public String getTtsFileName(int key) {
-        String fileName = ttsFileMap.get(key);
-        if (fileName == null) {
+        TTsFileInfo fileInfo = ttsFileMap2.get(key);
+        if (fileInfo == null) {
             log.warn("TTS File Null (key:{})", key);
+            return null;
         }
-        return fileName;
+
+        return fileInfo.getFileName();
     }
 
+    public void deleteTtsFile(String content) {
+        this.deleteTtsFile(content.hashCode());
+    }
     public void deleteTtsFile(int key) {
-        String fileName = ttsFileMap.remove(key);
-        if (fileName != null) {
-            log.warn("TTS File [{}] Removed", fileName);
+        TTsFileInfo fileInfo = ttsFileMap2.remove(key);
+        if (fileInfo != null) {
+            log.warn("TTS File [{}] Removed", fileInfo.getFileName());
         }
+    }
+
+    // todo 오래된 Cache 파일 관리 - FileInfo 생성 시간 혹은 File 자체의 생성 시간 체크
+    public boolean checkTimeout(TTsFileInfo fileInfo, int timer) {
+        if (fileInfo == null || timer <= 0) return false;
+        long createTime = fileInfo.getCreateTime();
+        return createTime > 0 && createTime + timer < System.currentTimeMillis();
     }
 }
