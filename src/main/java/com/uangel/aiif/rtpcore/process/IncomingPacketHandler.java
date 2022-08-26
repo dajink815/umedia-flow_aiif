@@ -28,7 +28,13 @@ public class IncomingPacketHandler extends SimpleChannelInboundHandler<DatagramP
         ByteBuf buf = msg.content();
         byte[] data = new byte[buf.readableBytes()];
         buf.readBytes(data);
-        RtpHeader rtpHeader = new RtpHeader(data, 0);
+        RtpHeader rtpHeader;
+        try {
+            rtpHeader = new RtpHeader(data, 0);
+        } catch (Exception e) {
+            // Ignore Wrong Packet.
+            return;
+        }
 
         CallInfo callInfo = nettyChannelManager.getCallByPort(localPort);
         if(!callInfo.getSttConverter().isRunning()) return;
