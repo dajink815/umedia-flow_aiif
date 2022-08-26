@@ -9,7 +9,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 
-import java.util.concurrent.ExecutorService;
 
 public class IncomingPacketHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     private static final AppInstance appInstance = AppInstance.getInstance();
@@ -27,6 +26,7 @@ public class IncomingPacketHandler extends SimpleChannelInboundHandler<DatagramP
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
         ByteBuf buf = msg.content();
         byte[] data = new byte[buf.readableBytes()];
+        buf.readBytes(data);
 
         CallInfo callInfo = nettyChannelManager.getCallByPort(localPort);
         if(!callInfo.getSttConverter().isRunning()) return;
