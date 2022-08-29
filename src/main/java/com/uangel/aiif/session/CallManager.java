@@ -62,13 +62,16 @@ public class CallManager {
         return callInfo;
     }
 
-    public void deleteCallInfo(String callId) {
-        if (callId == null) return;
+    public boolean deleteCallInfo(String callId) {
+        if (callId == null) return false;
+        boolean result = false;
         CallInfo callInfo = callInfoMap.remove(callId);
         if (callInfo != null) {
             callInfo.dealloc();
             log.warn("CallInfo [{}] Removed", callId);
+            result = true;
         }
+        return result;
     }
 
     public ConcurrentMap<String, CallInfo> getCallInfoMap() {

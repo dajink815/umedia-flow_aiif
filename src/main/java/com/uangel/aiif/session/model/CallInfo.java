@@ -10,8 +10,8 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 
 /**
  * @author dajin kim
@@ -34,8 +34,12 @@ public class CallInfo {
     // TTS & STT
     private TtsConverter ttsConverter;
     private SttConverter sttConverter;
+    private String ttsDialogId;
+    private String sttDialogId;
 
     private RtpChannelInfo rtpChannelInfo;
+
+    private AtomicBoolean isClearing = new AtomicBoolean(false);
 
     private String logHeader = "";
 
@@ -91,6 +95,15 @@ public class CallInfo {
     // RTP
     public int getRtpPort() {
         return rtpChannelInfo.getUsingPort();
+    }
+
+    // IsClearing
+    public boolean isClearing() {
+        return isClearing.get();
+    }
+    public void setClearing(boolean isClearing) {
+        this.isClearing.set(isClearing);
+        log.info("{}SESSION Clearing Flag Changed {} --> {}", logHeader, this.isClearing.get(), isClearing);
     }
 
 }

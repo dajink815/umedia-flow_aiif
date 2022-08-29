@@ -41,11 +41,12 @@ public class RmqSttStartReq {
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
         String callId = req.getCallId();
+        String dialogId = req.getDialogId();
         CallInfo callInfo = callManager.getCallInfo(callId);
         if (callInfo == null) {
             log.warn("() ({}) () SttStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendSttStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
+            sender.sendSttStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
             return;
         }
 
@@ -53,31 +54,53 @@ public class RmqSttStartReq {
         if (sttConverter == null) {
             log.warn("{}SttStartReq SttConverter is Null", callInfo.getLogHeader());
             // Send Fail Response
-            sender.sendSttStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId);
+            sender.sendSttStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId, dialogId);
             return;
         }
 
+        // Clearing 체크
+        try {
+            log.debug("{}SttStartReq - CallInfo Lock", callInfo.getLogHeader());
+            callInfo.lock();
+
+            if (callInfo.isClearing()) {
+                log.warn("() ({}) () SttStartReq Session is Clearing", callId);
+                // Send Fail Response
+                sender.sendSttStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
+                return;
+            }
+
+        } finally {
+            callInfo.unlock();
+        }
+
+        callInfo.setSttDialogId(dialogId);
         log.debug("SttStartReq Credential : {}", System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
 
         // STT Start
         int sttDur = req.getDuration();
-        log.debug("{}RmqSttStartReq STT Start - Duration [{}]", callInfo.getLogHeader(), sttDur);
-        sttConverter.start();         // RTP 처리 Start - sttConverter isRunning Flag True
+        log.debug("{}SttStartReq STT Start - Duration [{}], SttConverter [{}]", callInfo.getLogHeader(), sttDur, sttConverter.hashCode());
 
-        // Send Success Response
-        sender.sendSttStartRes(header.getTId(), callInfo);
+        try {
+            sttConverter.start();         // RTP 처리 Start - sttConverter isRunning Flag True
 
-        // Schedule
-        executors.schedule(() ->{
-            // STT Stop
-            sttConverter.stop();    // RTP 처리 Stop - sttConverter isRunning Flag False
-            // STT 결과 처리
-            String result = Optional.ofNullable(sttConverter.getResultTexts()).filter(o -> !o.isEmpty()).map(o -> o.get(o.size() - 1)).orElse("");
-            log.debug("{}RmqSttStartReq STT Result : {}", callInfo.getLogHeader(), result);
+            // Send Success Response
+            sender.sendSttStartRes(header.getTId(), callInfo);
 
-            // Send SttResultReq
-            sender.sendSttResultReq(header.getTId(), callInfo, result);
-        }, sttDur, TimeUnit.MILLISECONDS);
+            // Schedule
+            executors.schedule(() ->{
+                // STT Stop
+                sttConverter.stop();    // RTP 처리 Stop - sttConverter isRunning Flag False
+                // STT 결과 처리
+                String result = Optional.ofNullable(sttConverter.getResultTexts()).filter(o -> !o.isEmpty()).map(o -> o.get(o.size() - 1)).orElse("");
+                log.debug("{}SttStartReq STT Result : {}", callInfo.getLogHeader(), result);
+
+                // Send SttResultReq
+                sender.sendSttResultReq(header.getTId(), callInfo, result);
+            }, sttDur, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.error("{}SttStartReq.sttConverter.Exception ", callInfo.getLogHeader(), e);
+        }
 
     }
 }

@@ -69,7 +69,7 @@ public class RmqMediaStartReq {
                 .setSsmlGender(SsmlVoiceGender.NEUTRAL)
                 .build();
 
-        log.debug("{}MediaStartReq - STT/TTS Converter Created", callInfo.getLogHeader());
+        log.debug("{}MediaStartReq - STT/TTS Converter Created (STT: {}/TTS: {})", callInfo.getLogHeader(), sttConverter.hashCode(), ttsConverter.hashCode());
 
         callInfo.setSttConverter(sttConverter);
         callInfo.setTtsConverter(ttsConverter);

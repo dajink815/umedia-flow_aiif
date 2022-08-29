@@ -40,11 +40,12 @@ public class RmqTtsStartReq {
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
         String callId = req.getCallId();
+        String dialogId = req.getDialogId();
         CallInfo callInfo = callManager.getCallInfo(callId);
         if (callInfo == null) {
             log.warn("() ({}) () TtsStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendTtsStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
+            sender.sendTtsStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
             return;
         }
 
@@ -53,9 +54,29 @@ public class RmqTtsStartReq {
         if (ttsConverter == null) {
             log.warn("{}TtsStartReq TtsConverter is Null", callInfo.getLogHeader());
             // Send Fail Response
-            sender.sendTtsStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId);
+            sender.sendTtsStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId, dialogId);
             return;
         }
+
+        // Clearing 체크
+        try {
+            log.debug("{}TtsStartReq - CallInfo Lock", callInfo.getLogHeader());
+            callInfo.lock();
+
+            if (callInfo.isClearing()) {
+                log.warn("() ({}) () TtsStartReq Session is Clearing", callId);
+                // Send Fail Response
+                sender.sendTtsStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
+                return;
+            }
+
+        } finally {
+            callInfo.unlock();
+        }
+
+
+        callInfo.setTtsDialogId(dialogId);
+        log.debug("{}TtsStartReq TTS Start - TtsConverter [{}] DialogId [{}]", callInfo.getLogHeader(), ttsConverter.hashCode(), dialogId);
 
         // TTS Start
         TtsType ttsType = TtsType.getTypeEnum(req.getType());
@@ -71,7 +92,7 @@ public class RmqTtsStartReq {
             // 파일 존재 하지 않으면 Fail Response
             if (!FileUtil.isExist(fileBasePath + MEDIA_DIR + content)) {
                 log.warn("{}TtsStartReq [{}] File Not Exist", callInfo.getLogHeader(), fileBasePath + MEDIA_DIR + content);
-                sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId);
+                sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId, dialogId);
                 return;
             }
             // AIM 에 경로 전달 시, BaseDir 없이
@@ -109,7 +130,7 @@ public class RmqTtsStartReq {
                         ttsFileManager.addTtsFile(content, mediaPlayPath);
                     } catch (Exception e) {
                         log.error("{}RmqTtsStartRes.convertTts.Exception ", callInfo.getLogHeader(), e);
-                        sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId);
+                        sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId, dialogId);
                         return;
                     }
                 }
@@ -123,7 +144,8 @@ public class RmqTtsStartReq {
         // Send Success Response
         sender.sendTtsStartRes(header.getTId(), callInfo);
         // Send MediaPlayReq
-        sender.sendMediaPlayReq(callInfo, mediaPlayPath);
+        String mediaDialogId = header.getTId() + "_" + ttsType.toString();
+        sender.sendMediaPlayReq(callInfo, mediaPlayPath, mediaDialogId);
     }
 
 

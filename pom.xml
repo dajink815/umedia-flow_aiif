@@ -17,6 +17,8 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <jar.finalName>AI_CALL_${project.artifactId}</jar.finalName>
+        <!-- protobuf msg version -->
+        <rmqmsg.version>1.0.3</rmqmsg.version>
     </properties>
 
     <repositories>
@@ -117,7 +119,7 @@
         <dependency>
             <groupId>com.uangel.protobuf</groupId>
             <artifactId>aipbmsg</artifactId>
-            <version>1.0.2</version>
+            <version>${rmqmsg.version}</version>
         </dependency>
 
         <dependency>
@@ -141,7 +143,7 @@
         <dependency>
             <groupId>ai.media</groupId>
             <artifactId>voice-recognition</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
 
         <dependency>

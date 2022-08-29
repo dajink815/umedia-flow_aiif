@@ -33,16 +33,17 @@ public class RmqMediaDoneReq {
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
         String callId = req.getCallId();
+        String dialogId = req.getDialogId();
         CallInfo callInfo = callManager.getCallInfo(callId);
         if (callInfo == null) {
             log.warn("() ({}) () MediaDoneReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendMediaDoneRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
+            sender.sendMediaDoneRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
             return;
         }
 
         // Send Success Response
-        sender.sendMediaDoneRes(header.getTId(), callInfo);
+        sender.sendMediaDoneRes(header.getTId(), callInfo, dialogId);
 
         // Send TtsResultReq
         sender.sendTtsResultReq(callInfo);

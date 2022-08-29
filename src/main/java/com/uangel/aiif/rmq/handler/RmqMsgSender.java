@@ -1,139 +1,188 @@
 package com.uangel.aiif.rmq.handler;
 
-import com.uangel.aiif.rmq.common.RmqMsgType;
-import com.uangel.aiif.rmq.handler.aim.outgoing.RmqMediaDoneRes;
-import com.uangel.aiif.rmq.handler.aim.outgoing.RmqMediaPlayReq;
-import com.uangel.aiif.rmq.handler.aim.outgoing.RmqMediaStartRes;
-import com.uangel.aiif.rmq.handler.aim.outgoing.RmqMediaStopReq;
-import com.uangel.aiif.rmq.handler.aiwf.outgoing.*;
+import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.session.model.CallInfo;
+import com.uangel.protobuf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author dajin kim
  */
-public class RmqMsgSender {
+public class RmqMsgSender extends RmqOutgoingMessage {
     static final Logger log = LoggerFactory.getLogger(RmqMsgSender.class);
-    private static RmqMsgSender rmqMsgSender = null;
+    private static RmqMsgSender sender = null;
 
     public static RmqMsgSender getInstance() {
-        if (rmqMsgSender == null)
-            rmqMsgSender = new RmqMsgSender();
-
-        return rmqMsgSender;
+        if (sender == null)
+            sender = new RmqMsgSender();
+        return sender;
     }
 
     // AIWF
     public void sendIHbReq(int status) {
-        RmqIHbReq req = new RmqIHbReq();
-        req.send(status, RmqMsgType.I_HB_REQ);
+        sendToAiwf(new MessageBuilder()
+                .setBody(IHbReq.newBuilder()
+                        .setStatus(status).build()));
     }
 
     public void sendCreateSessionRes(String tId, CallInfo callInfo) {
-        RmqCreateSessionRes res = new RmqCreateSessionRes();
-        res.send(tId, callInfo, RmqMsgType.CREATE_SESSION_RES);
+        sendToAiwf(new MessageBuilder()
+                .setBody(CreateSessionRes.newBuilder()
+                        .setCallId(callInfo.getCallId()).build())
+                .settId(tId));
     }
     public void sendCreateSessionRes(String tId, int reasonCode, String reason, String callId) {
-        RmqCreateSessionRes res = new RmqCreateSessionRes();
-        res.send(tId, reasonCode, reason, callId, RmqMsgType.CREATE_SESSION_RES);
+        sendToAiwf(new MessageBuilder()
+                .setBody(CreateSessionRes.newBuilder()
+                        .setCallId(callId).build())
+                .settId(tId)
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
     public void sendDelSessionRes(String tId, String callId) {
-        RmqDelSessionRes res = new RmqDelSessionRes();
-        res.send(tId, callId, RmqMsgType.DEL_SESSION_RES);
+        sendToAiwf(new MessageBuilder()
+                .setBody(DelSessionRes.newBuilder()
+                        .setCallId(callId).build())
+                .settId(tId));
     }
     public void sendDelSessionRes(String tId, int reasonCode, String reason, String callId) {
-        RmqDelSessionRes res = new RmqDelSessionRes();
-        res.send(tId, reasonCode, reason, callId, RmqMsgType.DEL_SESSION_RES);
+        sendToAiwf(new MessageBuilder()
+                .setBody(DelSessionRes.newBuilder()
+                        .setCallId(callId).build())
+                .settId(tId)
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
     public void sendTtsStartRes(String tId, CallInfo callInfo) {
-        RmqTtsStartRes res = new RmqTtsStartRes();
-        res.send(tId, callInfo, RmqMsgType.TTS_START_RES);
+        sendToAiwf(new MessageBuilder()
+                .setBody(TtsStartRes.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(callInfo.getTtsDialogId()).build())
+                .settId(tId));
     }
-    public void sendTtsStartRes(String tId, int reasonCode, String reason, CallInfo callInfo) {
-        RmqTtsStartRes res = new RmqTtsStartRes();
-        res.send(tId, reasonCode, reason, callInfo, RmqMsgType.TTS_START_RES);
-    }
-    public void sendTtsStartRes(String tId, int reasonCode, String reason, String callId) {
-        RmqTtsStartRes res = new RmqTtsStartRes();
-        res.send(tId, reasonCode, reason, callId, RmqMsgType.TTS_START_RES);
+    public void sendTtsStartRes(String tId, int reasonCode, String reason, String callId, String dialogId) {
+        sendToAiwf(new MessageBuilder()
+                .setBody(TtsStartRes.newBuilder()
+                        .setCallId(callId)
+                        .setDialogId(dialogId).build())
+                .settId(tId)
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
     public void sendTtsResultReq(CallInfo callInfo) {
-        RmqTtsResultReq req = new RmqTtsResultReq();
-        req.send(callInfo, RmqMsgType.TTS_RESULT_REQ);
+        sendToAiwf(new MessageBuilder()
+                .setBody(TtsResultReq.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(callInfo.getTtsDialogId()).build()));
     }
     public void sendTtsResultReq(int reasonCode, String reason, CallInfo callInfo) {
-        RmqTtsResultReq req = new RmqTtsResultReq();
-        req.send(reasonCode, reason, callInfo, RmqMsgType.TTS_RESULT_REQ);
+        sendToAiwf(new MessageBuilder()
+                .setBody(TtsResultReq.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(callInfo.getTtsDialogId()).build())
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
     public void sendSttStartRes(String tId, CallInfo callInfo) {
-        RmqSttStartRes res = new RmqSttStartRes();
-        res.send(tId, callInfo, RmqMsgType.STT_START_RES);
+        sendToAiwf(new MessageBuilder()
+                .setBody(SttStartRes.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(callInfo.getSttDialogId()).build())
+                .settId(tId));
     }
-    public void sendSttStartRes(String tId, int reasonCode, String reason, String callId) {
-        RmqSttStartRes res = new RmqSttStartRes();
-        res.send(tId, reasonCode, reason, callId, RmqMsgType.STT_START_RES);
+    public void sendSttStartRes(String tId, int reasonCode, String reason, String callId, String dialogId) {
+        sendToAiwf(new MessageBuilder()
+                .setBody(SttStartRes.newBuilder()
+                        .setCallId(callId)
+                        .setDialogId(dialogId).build())
+                .settId(tId)
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
     public void sendSttResultReq(String tId, CallInfo callInfo, String resultTxt) {
-        RmqSttResultReq req = new RmqSttResultReq();
-        req.send(tId, callInfo, resultTxt, RmqMsgType.STT_RESULT_REQ);
+        sendToAiwf(new MessageBuilder()
+                .setBody(SttResultReq.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(callInfo.getSttDialogId())
+                        .setResultText(resultTxt).build())
+                .settId(tId));
 
     }
     public void sendSttResultReq(String tId, int reasonCode, String reason, CallInfo callInfo, String resultTxt) {
-        RmqSttResultReq req = new RmqSttResultReq();
-        req.send(tId, reasonCode, reason, callInfo, resultTxt,  RmqMsgType.STT_RESULT_REQ);
-
+        sendToAiwf(new MessageBuilder()
+                .setBody(SttResultReq.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(callInfo.getSttDialogId())
+                        .setResultText(resultTxt).build())
+                .settId(tId)
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
     // AIM
     public void sendMediaStartRes(String tId, CallInfo callInfo) {
-        RmqMediaStartRes res = new RmqMediaStartRes();
-        res.send(tId, callInfo, RmqMsgType.MEDIA_START_RES);
-    }
-    public void sendMediaStartRes(String tId, int reasonCode, String reason, CallInfo callInfo) {
-        RmqMediaStartRes res = new RmqMediaStartRes();
-        res.send(tId, reasonCode, reason, callInfo, RmqMsgType.MEDIA_START_RES);
+        sendToAim(new MessageBuilder()
+                .setBody(MediaStartRes.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setRtpIp(AppInstance.getInstance().getConfig().getServerIp())
+                        .setRtpPort(callInfo.getRtpPort()).build())
+                .settId(tId));
     }
     public void sendMediaStartRes(String tId, int reasonCode, String reason, String callId) {
-        RmqMediaStartRes res = new RmqMediaStartRes();
-        res.send(tId, reasonCode, reason, callId, RmqMsgType.MEDIA_START_RES);
+        sendToAim(new MessageBuilder()
+                .setBody(MediaStartRes.newBuilder()
+                        .setCallId(callId).build())
+                .settId(tId)
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
-    public void sendMediaPlayReq(CallInfo callInfo, String filePath) {
-        RmqMediaPlayReq req = new RmqMediaPlayReq();
-        req.send(callInfo, filePath, RmqMsgType.MEDIA_PLAY_REQ);
-    }
-    public void sendMediaPlayReq(int reasonCode, String reason, CallInfo callInfo, String filePath) {
-        RmqMediaPlayReq req = new RmqMediaPlayReq();
-        req.send(reasonCode, reason, callInfo, filePath, RmqMsgType.MEDIA_PLAY_REQ);
+    public void sendMediaPlayReq(CallInfo callInfo, String filePath, String dialogId) {
+        // Clearing 체크
+        if (callInfo.isClearing()) return;
+
+        sendToAim(new MessageBuilder()
+                .setBody(MediaPlayReq.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(dialogId)
+                        .setFilePath(filePath).build()));
     }
 
-    public void sendMediaDoneRes(String tId, CallInfo callInfo) {
-        RmqMediaDoneRes res = new RmqMediaDoneRes();
-        res.send(tId, callInfo, RmqMsgType.MEDIA_DONE_RES);
+    public void sendMediaDoneRes(String tId, CallInfo callInfo, String dialogId) {
+        sendToAim(new MessageBuilder()
+                .setBody(MediaDoneRes.newBuilder()
+                        .setCallId(callInfo.getCallId())
+                        .setDialogId(dialogId).build())
+                .settId(tId));
     }
-    public void sendMediaDoneRes(String tId, int reasonCode, String reason, CallInfo callInfo) {
-        RmqMediaDoneRes res = new RmqMediaDoneRes();
-        res.send(tId, reasonCode, reason, callInfo, RmqMsgType.MEDIA_DONE_RES);
-    }
-    public void sendMediaDoneRes(String tId, int reasonCode, String reason, String callId) {
-        RmqMediaDoneRes res = new RmqMediaDoneRes();
-        res.send(tId, reasonCode, reason, callId, RmqMsgType.MEDIA_DONE_RES);
+    public void sendMediaDoneRes(String tId, int reasonCode, String reason, String callId, String dialogId) {
+        sendToAim(new MessageBuilder()
+                .setBody(MediaDoneRes.newBuilder()
+                        .setCallId(callId)
+                        .setDialogId(dialogId).build())
+                .settId(tId)
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
     public void sendMediaStopReq(CallInfo callInfo) {
-        RmqMediaStopReq req = new RmqMediaStopReq();
-        req.send(callInfo, RmqMsgType.MEDIA_STOP_REQ);
+        sendToAim(new MessageBuilder()
+                .setBody(MediaStopReq.newBuilder()
+                        .setCallId(callInfo.getCallId()).build()));
 
     }
     public void sendMediaStopReq(int reasonCode, String reason, CallInfo callInfo) {
-        RmqMediaStopReq req = new RmqMediaStopReq();
-        req.send(reasonCode, reason, callInfo, RmqMsgType.MEDIA_STOP_REQ);
+        sendToAim(new MessageBuilder()
+                .setBody(MediaStopReq.newBuilder()
+                        .setCallId(callInfo.getCallId()).build())
+                .setReasonCode(reasonCode)
+                .setReason(reason));
     }
 
 }
