@@ -4,6 +4,7 @@ import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.service.schedule.base.IntervalTaskUnit;
 import com.uangel.aiif.service.schedule.handler.HbHandler;
+import com.uangel.aiif.service.schedule.handler.LongFileHandler;
 import com.uangel.aiif.service.schedule.handler.SessionMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,8 @@ public class IntervalTaskManager {
     private static final Logger log = LoggerFactory.getLogger(IntervalTaskManager.class);
     private static final IntervalTaskManager instance = new IntervalTaskManager();
     private final Map<String, IntervalTaskUnit> jobs = new HashMap<>();
-    private static final int TASK_INTERVAL = 1000;
+    private static final int TASK_INTERVAL_SEC = 1000;
+    private static final int TASK_INTERVAL_MIN = 60000;
     private ScheduledExecutorService executorService;
     private boolean isStarted = false;
 
@@ -33,8 +35,9 @@ public class IntervalTaskManager {
 
     public void init(){
         AiifConfig config = AppInstance.getInstance().getConfig();
-        addJob(HbHandler.class.getSimpleName(), new HbHandler(config.getHbInterval()));
-        addJob(SessionMonitor.class.getSimpleName(), new SessionMonitor(TASK_INTERVAL));
+        addJob(HbHandler.class.getSimpleName(),       new HbHandler(config.getHbInterval()));
+        addJob(SessionMonitor.class.getSimpleName(),  new SessionMonitor(TASK_INTERVAL_SEC));
+        addJob(LongFileHandler.class.getSimpleName(), new LongFileHandler(TASK_INTERVAL_MIN));
     }
 
     public static IntervalTaskManager getInstance() {

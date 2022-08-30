@@ -25,7 +25,7 @@ public class RmqTtsStartReq {
     private static final CallManager callManager = CallManager.getInstance();
     private static final TtsFileManager ttsFileManager = TtsFileManager.getInstance();
     private static final String MEDIA_DIR = "/media/";
-    private static final String CACHE_DIR = "/cache/";
+    public static final String CACHE_DIR = "/cache/";
 
     public RmqTtsStartReq() {
         // nothing

@@ -43,6 +43,7 @@ public class AiifConfig extends DefaultConfig {
     // FIELD - AI
     private static final String FIELD_MEDIA_FILE_PATH = "MEDIA_FILE_PATH";
     private static final String FIELD_STT_THREAD_SIZE = "STT_THREAD_SIZE";
+    private static final String FIELD_LONG_FILE = "LONG_FILE";
 
     // VALUE - COMMON
     private int hbInterval;
@@ -74,6 +75,7 @@ public class AiifConfig extends DefaultConfig {
     // VALUE - AI
     private String mediaFilePath;
     private int sttThreadSize;
+    private int longFile;
 
     public AiifConfig(String configPath) {
         super(configPath);
@@ -151,5 +153,6 @@ public class AiifConfig extends DefaultConfig {
     private void loadAiConfig() {
         this.mediaFilePath = getStrValue(SECTION_AI, FIELD_MEDIA_FILE_PATH, "");
         this.sttThreadSize = getIntValue(SECTION_AI, FIELD_STT_THREAD_SIZE, 10);
+        this.longFile = getIntValue(SECTION_AI, FIELD_LONG_FILE, 168);
     }
 }

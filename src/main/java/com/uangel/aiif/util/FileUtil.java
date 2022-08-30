@@ -4,6 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author dajin kim
@@ -28,6 +35,10 @@ public class FileUtil {
     public static boolean isFile(String filePathName) {
         File file = new File(filePathName);
         return file.isFile();
+    }
+
+    public static String getFileName(String filePath) {
+        return new File(filePath).getName();
     }
 
     public static void createDir(String dirPath) {
@@ -62,6 +73,17 @@ public class FileUtil {
         }
 
         return newFile;
+    }
+
+    public static void deleteFile(String filePath) {
+        Path path = Paths.get(filePath);
+        try {
+            if (Files.deleteIfExists(path)) {
+                log.debug("Deleted File [{}]", path.getFileName());
+            }
+        } catch (Exception e) {
+            log.error("FileUtil.deleteFile.Exception [{}] ", path.getFileName(), e);
+        }
     }
 
     public static void writeFile(String fileName, String data, boolean append) {
@@ -128,5 +150,46 @@ public class FileUtil {
             log.error("FileUtil.inputStreamToByteArray.Exception ", e);
         }
         return result;
+    }
+
+    public static FileTime getCreationTime(String filePath) {
+        return getFileTime(filePath, "creationTime");
+    }
+
+    public static FileTime getLastModifiedTime(String filePath) {
+        return getFileTime(filePath, "lastModifiedTime");
+    }
+
+    public static FileTime getFileTime(String filePath, String timeAttr) {
+        FileTime fileTime = null;
+        Path path = Paths.get(filePath);
+
+        try {
+            fileTime = (FileTime) Files.getAttribute(path, timeAttr);
+        } catch (IOException e) {
+            log.error("FileUtil.getFileTime.Exception (Attribute: {})", timeAttr, e);
+        }
+        return fileTime;
+    }
+
+    public static void printGapTime(String filePath) {
+        FileTime fileTime = getLastModifiedTime(filePath);
+        if (fileTime == null) return;
+        String modifiedTime = DateFormatUtil.formatYmdHmsS(fileTime.toMillis());
+        log.debug("File:[{}], LastModifiedTime:[{}]", getFileName(filePath), modifiedTime);
+
+        long gap = System.currentTimeMillis() - fileTime.toMillis();
+        int gapDays = (int) (gap/1000/60/60/24);
+        int gapHours = (int) ((gap/1000/60/60)%24);
+        int gapMins = (int) ((gap/1000/60)%60);
+        log.debug("GAP [{} Days, {} Hours, {} Mins]", gapDays, gapHours, gapMins);
+    }
+
+    public static List<File> getDirFileList(String dirPath) {
+        // check dir
+        if (!isDir(dirPath)) return Collections.emptyList();
+        File[] files = new File(dirPath).listFiles();
+        if (files == null || files.length == 0) return Collections.emptyList();
+        return Arrays.asList(files);
     }
 }
