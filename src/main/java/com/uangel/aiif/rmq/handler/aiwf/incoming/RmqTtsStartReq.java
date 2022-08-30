@@ -3,13 +3,13 @@ package com.uangel.aiif.rmq.handler.aiwf.incoming;
 import ai.media.tts.TtsConverter;
 import com.uangel.aiif.ai.google.tts.TtsFileManager;
 import com.uangel.aiif.ai.google.tts.TtsType;
+import com.uangel.aiif.rmq.handler.RmqIncomingMessage;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
 import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.service.ServiceDefine;
 import com.uangel.aiif.session.CallManager;
 import com.uangel.aiif.session.model.CallInfo;
 import com.uangel.aiif.util.FileUtil;
-import com.uangel.protobuf.Header;
 import com.uangel.protobuf.Message;
 import com.uangel.protobuf.TtsStartReq;
 import org.slf4j.Logger;
@@ -20,32 +20,29 @@ import static com.uangel.aiif.rmq.common.RmqMsgType.*;
 /**
  * @author dajin kim
  */
-public class RmqTtsStartReq {
+public class RmqTtsStartReq extends RmqIncomingMessage<TtsStartReq> {
     static final Logger log = LoggerFactory.getLogger(RmqTtsStartReq.class);
     private static final CallManager callManager = CallManager.getInstance();
     private static final TtsFileManager ttsFileManager = TtsFileManager.getInstance();
     private static final String MEDIA_DIR = "/media/";
     public static final String CACHE_DIR = "/cache/";
 
-    public RmqTtsStartReq() {
-        // nothing
+    public RmqTtsStartReq(Message message) {
+        super(message);
     }
 
-    public void handle(Message msg) {
-
-        Header header = msg.getHeader();
-        TtsStartReq req = msg.getTtsStartReq();
-        // req check isEmpty
+    @Override
+    public void handle() {
 
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
-        String callId = req.getCallId();
-        String dialogId = req.getDialogId();
+        String callId = body.getCallId();
+        String dialogId = body.getDialogId();
         CallInfo callInfo = callManager.getCallInfo(callId);
         if (callInfo == null) {
             log.warn("() ({}) () TtsStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendTtsStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
+            sender.sendTtsStartRes(getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
             return;
         }
 
@@ -54,7 +51,7 @@ public class RmqTtsStartReq {
         if (ttsConverter == null) {
             log.warn("{}TtsStartReq TtsConverter is Null", callInfo.getLogHeader());
             // Send Fail Response
-            sender.sendTtsStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId, dialogId);
+            sender.sendTtsStartRes(getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId, dialogId);
             return;
         }
 
@@ -66,7 +63,7 @@ public class RmqTtsStartReq {
             if (callInfo.isClearing()) {
                 log.warn("() ({}) () TtsStartReq Session is Clearing", callId);
                 // Send Fail Response
-                sender.sendTtsStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
+                sender.sendTtsStartRes(getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
                 return;
             }
 
@@ -79,8 +76,8 @@ public class RmqTtsStartReq {
         log.debug("{}TtsStartReq TTS Start - TtsConverter [{}] DialogId [{}]", callInfo.getLogHeader(), ttsConverter.hashCode(), dialogId);
 
         // TTS Start
-        TtsType ttsType = TtsType.getTypeEnum(req.getType());
-        String content = req.getContent();
+        TtsType ttsType = TtsType.getTypeEnum(body.getType());
+        String content = body.getContent();
         String mediaPlayPath = null;
 
         String fileBasePath = AppInstance.getInstance().getConfig().getMediaFilePath();
@@ -92,7 +89,7 @@ public class RmqTtsStartReq {
             // 파일 존재 하지 않으면 Fail Response
             if (!FileUtil.isExist(fileBasePath + MEDIA_DIR + content)) {
                 log.warn("{}TtsStartReq [{}] File Not Exist", callInfo.getLogHeader(), fileBasePath + MEDIA_DIR + content);
-                sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId, dialogId);
+                sender.sendTtsStartRes(getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId, dialogId);
                 return;
             }
             // AIM 에 경로 전달 시, BaseDir 없이
@@ -130,7 +127,7 @@ public class RmqTtsStartReq {
                         ttsFileManager.addTtsFile(content, mediaPlayPath);
                     } catch (Exception e) {
                         log.error("{}RmqTtsStartRes.convertTts.Exception ", callInfo.getLogHeader(), e);
-                        sender.sendTtsStartRes(header.getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId, dialogId);
+                        sender.sendTtsStartRes(getTId(), REASON_CODE_MEDIA_ERROR, REASON_MEDIA_ERROR, callId, dialogId);
                         return;
                     }
                 }
@@ -142,9 +139,9 @@ public class RmqTtsStartReq {
 
         // Response 전송 시점  TTS 처리 전?
         // Send Success Response
-        sender.sendTtsStartRes(header.getTId(), callInfo);
+        sender.sendTtsStartRes(getTId(), callInfo);
         // Send MediaPlayReq
-        String mediaDialogId = header.getTId() + "_" + ttsType.toString();
+        String mediaDialogId = getTId() + "_" + ttsType.toString();
         sender.sendMediaPlayReq(callInfo, mediaPlayPath, mediaDialogId);
     }
 

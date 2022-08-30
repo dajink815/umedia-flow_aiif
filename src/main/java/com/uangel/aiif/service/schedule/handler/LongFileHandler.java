@@ -55,7 +55,7 @@ public class LongFileHandler extends IntervalTaskUnit {
                     FileTime fileTime = FileUtil.getLastModifiedTime(file.getAbsolutePath());
                     String lastModified =  DateFormatUtil.formatYmdHmsS(fileTime.toMillis());
                     int gapHour = (int) (System.currentTimeMillis() - fileTime.toMillis())/1000/60/60;
-                    log.warn("File TIMEOUT [F:{}] [T:{}h] [G:{}] [L:{}]", file.getName(), config.getLongFile(), gapHour, lastModified);
+                    log.warn("File TIMEOUT [F:{}] [T:{}h] [G:{}h] [L:{}]", file.getName(), config.getLongFile(), gapHour, lastModified);
 
                     // 파일 제거
                     //FileUtil.deleteFile(file.getAbsolutePath());

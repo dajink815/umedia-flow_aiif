@@ -26,32 +26,32 @@ public class RmqAiwfConsumer {
 
         switch(msg.getBodyCase().getNumber()){
             case Message.IHBRES_FIELD_NUMBER:
-                RmqIHbRes iHbRes = new RmqIHbRes();
-                iHbRes.handle(msg);
+                RmqIHbRes iHbRes = new RmqIHbRes(msg);
+                iHbRes.handle();
                 break;
             case Message.CREATESESSIONREQ_FIELD_NUMBER:
-                RmqCreateSessionReq createSessionReq = new RmqCreateSessionReq();
-                createSessionReq.handle(msg);
+                RmqCreateSessionReq createSessionReq = new RmqCreateSessionReq(msg);
+                createSessionReq.handle();
                 break;
             case Message.DELSESSIONREQ_FIELD_NUMBER:
-                RmqDelSessionReq delSessionReq = new RmqDelSessionReq();
-                delSessionReq.handle(msg);
+                RmqDelSessionReq delSessionReq = new RmqDelSessionReq(msg);
+                delSessionReq.handle();
                 break;
             case Message.TTSSTARTREQ_FIELD_NUMBER:
-                RmqTtsStartReq ttsStartReq = new RmqTtsStartReq();
-                ttsStartReq.handle(msg);
+                RmqTtsStartReq ttsStartReq = new RmqTtsStartReq(msg);
+                ttsStartReq.handle();
                 break;
             case Message.TTSRESULTRES_FIELD_NUMBER:
-                RmqTtsResultRes ttsResultRes = new RmqTtsResultRes();
-                ttsResultRes.handle(msg);
+                RmqTtsResultRes ttsResultRes = new RmqTtsResultRes(msg);
+                ttsResultRes.handle();
                 break;
             case Message.STTSTARTREQ_FIELD_NUMBER:
-                RmqSttStartReq sttStartReq = new RmqSttStartReq();
-                sttStartReq.handle(msg);
+                RmqSttStartReq sttStartReq = new RmqSttStartReq(msg);
+                sttStartReq.handle();
                 break;
             case Message.STTRESULTRES_FIELD_NUMBER:
-                RmqSttResultRes sttResultRes = new RmqSttResultRes();
-                sttResultRes.handle(msg);
+                RmqSttResultRes sttResultRes = new RmqSttResultRes(msg);
+                sttResultRes.handle();
                 break;
             default:
                 Header header = msg.getHeader();

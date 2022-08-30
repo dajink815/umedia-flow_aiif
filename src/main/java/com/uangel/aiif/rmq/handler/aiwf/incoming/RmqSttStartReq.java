@@ -1,11 +1,11 @@
 package com.uangel.aiif.rmq.handler.aiwf.incoming;
 
 import ai.media.stt.SttConverter;
+import com.uangel.aiif.rmq.handler.RmqIncomingMessage;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
 import com.uangel.aiif.service.AppInstance;
 import com.uangel.aiif.session.CallManager;
 import com.uangel.aiif.session.model.CallInfo;
-import com.uangel.protobuf.Header;
 import com.uangel.protobuf.Message;
 import com.uangel.protobuf.SttStartReq;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
@@ -22,31 +22,28 @@ import static com.uangel.aiif.rmq.common.RmqMsgType.*;
 /**
  * @author dajin kim
  */
-public class RmqSttStartReq {
+public class RmqSttStartReq extends RmqIncomingMessage<SttStartReq> {
     static final Logger log = LoggerFactory.getLogger(RmqSttStartReq.class);
     private static final CallManager callManager = CallManager.getInstance();
     private static final ScheduledExecutorService executors = Executors.newScheduledThreadPool(AppInstance.getInstance().getConfig().getSttThreadSize(),
             new BasicThreadFactory.Builder().namingPattern("SttStartReq-%d").build());
 
-    public RmqSttStartReq() {
-        // nothing
+    public RmqSttStartReq(Message message) {
+        super(message);
     }
 
-    public void handle(Message msg) {
-
-        Header header = msg.getHeader();
-        SttStartReq req = msg.getSttStartReq();
-        // req check isEmpty
+    @Override
+    public void handle() {
 
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
-        String callId = req.getCallId();
-        String dialogId = req.getDialogId();
+        String callId = body.getCallId();
+        String dialogId = body.getDialogId();
         CallInfo callInfo = callManager.getCallInfo(callId);
         if (callInfo == null) {
             log.warn("() ({}) () SttStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendSttStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
+            sender.sendSttStartRes(getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
             return;
         }
 
@@ -54,7 +51,7 @@ public class RmqSttStartReq {
         if (sttConverter == null) {
             log.warn("{}SttStartReq SttConverter is Null", callInfo.getLogHeader());
             // Send Fail Response
-            sender.sendSttStartRes(header.getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId, dialogId);
+            sender.sendSttStartRes(getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId, dialogId);
             return;
         }
 
@@ -66,7 +63,7 @@ public class RmqSttStartReq {
             if (callInfo.isClearing()) {
                 log.warn("() ({}) () SttStartReq Session is Clearing", callId);
                 // Send Fail Response
-                sender.sendSttStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
+                sender.sendSttStartRes(getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
                 return;
             }
 
@@ -78,14 +75,14 @@ public class RmqSttStartReq {
         log.debug("SttStartReq Credential : {}", System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
 
         // STT Start
-        int sttDur = req.getDuration();
+        int sttDur = body.getDuration();
         log.debug("{}SttStartReq STT Start - Duration [{}], SttConverter [{}]", callInfo.getLogHeader(), sttDur, sttConverter.hashCode());
 
         try {
             sttConverter.start();         // RTP 처리 Start - sttConverter isRunning Flag True
 
             // Send Success Response
-            sender.sendSttStartRes(header.getTId(), callInfo);
+            sender.sendSttStartRes(getTId(), callInfo);
 
             // Schedule
             executors.schedule(() ->{
@@ -96,7 +93,7 @@ public class RmqSttStartReq {
                 log.debug("{}SttStartReq STT Result : {}", callInfo.getLogHeader(), result);
 
                 // Send SttResultReq
-                sender.sendSttResultReq(header.getTId(), callInfo, result);
+                sender.sendSttResultReq(getTId(), callInfo, result);
             }, sttDur, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             log.error("{}SttStartReq.sttConverter.Exception ", callInfo.getLogHeader(), e);

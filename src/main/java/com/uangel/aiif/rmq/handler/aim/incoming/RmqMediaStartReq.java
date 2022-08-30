@@ -4,11 +4,11 @@ import ai.media.stt.SttConverter;
 import ai.media.tts.TtsConverter;
 import com.google.cloud.speech.v1.RecognitionConfig;
 import com.google.cloud.texttospeech.v1.SsmlVoiceGender;
+import com.uangel.aiif.rmq.handler.RmqIncomingMessage;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
 import com.uangel.aiif.service.ServiceDefine;
 import com.uangel.aiif.session.CallManager;
 import com.uangel.aiif.session.model.CallInfo;
-import com.uangel.protobuf.Header;
 import com.uangel.protobuf.MediaStartReq;
 import com.uangel.protobuf.Message;
 import org.slf4j.Logger;
@@ -20,34 +20,31 @@ import static com.uangel.aiif.rmq.common.RmqMsgType.REASON_NO_SESSION;
 /**
  * @author dajin kim
  */
-public class RmqMediaStartReq {
+public class RmqMediaStartReq extends RmqIncomingMessage<MediaStartReq> {
     static final Logger log = LoggerFactory.getLogger(RmqMediaStartReq.class);
     private static final CallManager callManager = CallManager.getInstance();
 
-    public RmqMediaStartReq() {
-        // nothing
+    public RmqMediaStartReq(Message message) {
+        super(message);
     }
 
-    public void handle(Message msg) {
+    @Override
+    public void handle() {
         // RTP Port 할당 -> AIM 전달
-
-        Header header = msg.getHeader();
-        MediaStartReq req = msg.getMediaStartReq();
-        // req check isEmpty
 
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
-        String callId = req.getCallId();
+        String callId = body.getCallId();
         CallInfo callInfo = callManager.getCallInfo(callId);
         if (callInfo == null) {
             log.warn("() ({}) () MediaStartReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendMediaStartRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
+            sender.sendMediaStartRes(getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId);
             return;
         }
 
         // Sampling Rate
-        int samplingRate = req.getSamplingRate();
+        int samplingRate = body.getSamplingRate();
         if (samplingRate == 0) {
             log.warn("{}MediaStartReq SamplingRate is Null", callInfo.getLogHeader());
             // Default SamplingRate
@@ -74,7 +71,7 @@ public class RmqMediaStartReq {
         callInfo.setSttConverter(sttConverter);
         callInfo.setTtsConverter(ttsConverter);
 
-        sender.sendMediaStartRes(header.getTId(), callInfo);
+        sender.sendMediaStartRes(getTId(), callInfo);
 
     }
 }

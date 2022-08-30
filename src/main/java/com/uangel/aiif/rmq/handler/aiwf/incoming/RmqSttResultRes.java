@@ -1,6 +1,6 @@
 package com.uangel.aiif.rmq.handler.aiwf.incoming;
 
-import com.uangel.protobuf.Header;
+import com.uangel.aiif.rmq.handler.RmqIncomingMessage;
 import com.uangel.protobuf.Message;
 import com.uangel.protobuf.SttResultRes;
 import org.slf4j.Logger;
@@ -9,20 +9,17 @@ import org.slf4j.LoggerFactory;
 /**
  * @author dajin kim
  */
-public class RmqSttResultRes {
+public class RmqSttResultRes extends RmqIncomingMessage<SttResultRes> {
     static final Logger log = LoggerFactory.getLogger(RmqSttResultRes.class);
 
-    public RmqSttResultRes() {
-        // nothing
+    public RmqSttResultRes(Message message) {
+        super(message);
     }
 
-    public void handle(Message msg) {
+    @Override
+    public void handle() {
 
-        Header header = msg.getHeader();
-        SttResultRes res = msg.getSttResultRes();
-        // res check isEmpty
-
-        String callId = res.getCallId();
+        String callId = body.getCallId();
 
         //
 

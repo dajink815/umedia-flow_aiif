@@ -1,5 +1,6 @@
 package com.uangel.aiif.rmq.handler.aim.incoming;
 
+import com.uangel.aiif.rmq.handler.RmqIncomingMessage;
 import com.uangel.protobuf.MediaPlayRes;
 import com.uangel.protobuf.Message;
 import org.slf4j.Logger;
@@ -8,21 +9,19 @@ import org.slf4j.LoggerFactory;
 /**
  * @author dajin kim
  */
-public class RmqMediaPlayRes {
+public class RmqMediaPlayRes extends RmqIncomingMessage<MediaPlayRes> {
     static final Logger log = LoggerFactory.getLogger(RmqMediaPlayRes.class);
 
-    public RmqMediaPlayRes() {
-        // nothing
+    public RmqMediaPlayRes(Message message) {
+        super(message);
     }
 
-    public void handle(Message msg) {
+    @Override
+    public void handle() {
 
-        MediaPlayRes res = msg.getMediaPlayRes();
-        // res check isEmpty
+        String callId = body.getCallId();
+        int duration = body.getDuration();
 
-        String callId = res.getCallId();
-        //int duration = res.getDuration();  // todo MediaDone Timer
-
-        //log.info("() ({}) () MediaPlayRes - Media Play Time : {} (ms)", callId, duration);
+        log.debug("() ({}) () MediaPlayRes - Media Play Time : {} (ms)", callId, duration);
     }
 }

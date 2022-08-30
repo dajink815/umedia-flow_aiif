@@ -30,20 +30,20 @@ public class RmqAimConsumer {
         switch(msg.getBodyCase().getNumber()){
 
             case Message.MEDIASTARTREQ_FIELD_NUMBER:
-                RmqMediaStartReq mediaStartReq = new RmqMediaStartReq();
-                mediaStartReq.handle(msg);
+                RmqMediaStartReq mediaStartReq = new RmqMediaStartReq(msg);
+                mediaStartReq.handle();
                 break;
             case Message.MEDIAPLAYRES_FIELD_NUMBER:
-                RmqMediaPlayRes mediaPlayRes = new RmqMediaPlayRes();
-                mediaPlayRes.handle(msg);
+                RmqMediaPlayRes mediaPlayRes = new RmqMediaPlayRes(msg);
+                mediaPlayRes.handle();
                 break;
             case Message.MEDIADONEREQ_FIELD_NUMBER:
-                RmqMediaDoneReq mediaDoneReq = new RmqMediaDoneReq();
-                mediaDoneReq.handle(msg);
+                RmqMediaDoneReq mediaDoneReq = new RmqMediaDoneReq(msg);
+                mediaDoneReq.handle();
                 break;
             case Message.MEDIASTOPRES_FIELD_NUMBER:
-                RmqMediaStopRes mediaStopRes = new RmqMediaStopRes();
-                mediaStopRes.handle(msg);
+                RmqMediaStopRes mediaStopRes = new RmqMediaStopRes(msg);
+                mediaStopRes.handle();
                 break;
             default:
                 Header header = msg.getHeader();

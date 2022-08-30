@@ -1,9 +1,9 @@
 package com.uangel.aiif.rmq.handler.aim.incoming;
 
+import com.uangel.aiif.rmq.handler.RmqIncomingMessage;
 import com.uangel.aiif.rmq.handler.RmqMsgSender;
 import com.uangel.aiif.session.CallManager;
 import com.uangel.aiif.session.model.CallInfo;
-import com.uangel.protobuf.Header;
 import com.uangel.protobuf.MediaDoneReq;
 import com.uangel.protobuf.Message;
 import org.slf4j.Logger;
@@ -15,35 +15,32 @@ import static com.uangel.aiif.rmq.common.RmqMsgType.REASON_NO_SESSION;
 /**
  * @author dajin kim
  */
-public class RmqMediaDoneReq {
+public class RmqMediaDoneReq extends RmqIncomingMessage<MediaDoneReq> {
     static final Logger log = LoggerFactory.getLogger(RmqMediaDoneReq.class);
     private static final CallManager callManager = CallManager.getInstance();
 
-    public RmqMediaDoneReq() {
-        // nothing
+    public RmqMediaDoneReq(Message message) {
+        super(message);
     }
 
-    public void handle(Message msg) {
+    @Override
+    public void handle() {
         // Media Play 종료 -> AIWF 에 결과 반환
-
-        Header header = msg.getHeader();
-        MediaDoneReq req = msg.getMediaDoneReq();
-        // req check isEmpty
 
         RmqMsgSender sender = RmqMsgSender.getInstance();
 
-        String callId = req.getCallId();
-        String dialogId = req.getDialogId();
+        String callId = body.getCallId();
+        String dialogId = body.getDialogId();
         CallInfo callInfo = callManager.getCallInfo(callId);
         if (callInfo == null) {
             log.warn("() ({}) () MediaDoneReq Fail Find Session", callId);
             // Send Fail Response
-            sender.sendMediaDoneRes(header.getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
+            sender.sendMediaDoneRes(getTId(), REASON_CODE_NO_SESSION, REASON_NO_SESSION, callId, dialogId);
             return;
         }
 
         // Send Success Response
-        sender.sendMediaDoneRes(header.getTId(), callInfo, dialogId);
+        sender.sendMediaDoneRes(getTId(), callInfo, dialogId);
 
         // Send TtsResultReq
         sender.sendTtsResultReq(callInfo);

@@ -59,11 +59,4 @@ public class TtsFileManager {
             log.warn("TTS File [{}] Removed", fileInfo.getFileName());
         }
     }
-
-    // todo 오래된 Cache 파일 관리 - FileInfo 생성 시간 혹은 File 자체의 생성 시간 체크
-    public boolean checkTimeout(TTsFileInfo fileInfo, int timer) {
-        if (fileInfo == null || timer <= 0) return false;
-        long createTime = fileInfo.getCreateTime();
-        return createTime > 0 && createTime + timer < System.currentTimeMillis();
-    }
 }

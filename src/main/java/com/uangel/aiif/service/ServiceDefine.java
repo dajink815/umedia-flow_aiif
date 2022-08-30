@@ -4,7 +4,9 @@ package com.uangel.aiif.service;
  * @author dajin kim
  */
 public enum ServiceDefine {
-    LANG_CODE("ko-KR"), MEDIA_FILE_EXTENSION(".wav");
+
+    LANG_CODE("ko-KR"), MEDIA_FILE_EXTENSION(".wav"),
+    NORMAL(1), ABNORMAL(0);
 
     private String str;
     private int num;
