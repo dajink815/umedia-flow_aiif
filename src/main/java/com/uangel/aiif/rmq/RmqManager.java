@@ -2,6 +2,7 @@ package com.uangel.aiif.rmq;
 
 import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.handler.RmqConsumer;
+import com.uangel.aiif.util.StringUtil;
 import com.uangel.protobuf.Message;
 import com.uangel.aiif.rmq.module.RmqClient;
 import com.uangel.aiif.rmq.module.RmqServer;
@@ -62,7 +63,7 @@ public class RmqManager {
         instance.setRmqMsgQueue(rmqMsgQueue);
 
         for (int i = 0; i < config.getRmqThreadSize(); i++) {
-            executorRmqService.execute(() -> new Thread(new RmqConsumer(rmqMsgQueue)).start());
+            executorRmqService.execute(new RmqConsumer(rmqMsgQueue));
         }
     }
 
@@ -70,45 +71,40 @@ public class RmqManager {
     private void startRmqServer() {
         // AIIF Server
         if (rmqServer == null) {
-            RmqServer rmqAiwfServer = new RmqServer(config.getAiwfHost(), config.getAiwfUser(), config.getAiwfPass(), config.getAiif(), config.getAiwfPort());
-            if (rmqAiwfServer.start()) {
-                log.debug("RabbitMQ Server Start Success. [{}], [{}], [{}]", config.getAiif(), config.getAiwfHost(), config.getAiwfUser());
-                rmqServer = rmqAiwfServer;
-            }
-        }
+            String target = config.getAiif();
+            String host = config.getAiwfHost();
+            String user = config.getAiwfUser();
+            String pass = config.getAiwfPass();
+            int port = config.getAiwfPort();
 
-        // AIWF Server
-/*        if (rmqServer == null) {
-            RmqServer rmqAiwfServer = new RmqServer(config.getAiwfHost(), config.getAiwfUser(), config.getAiwfPass(), config.getAiwf(), config.getAiwfPort());
-            if (rmqAiwfServer.start()) {
-                log.debug("RabbitMQ Server Start Success. [{}], [{}], [{}]", config.getAiwf(), config.getAiwfHost(), config.getAiwfUser());
-                rmqServer = rmqAiwfServer;
-            }
-        }*/
+            RmqServer rmqAiwfServer = new RmqServer(host, user, pass, target, port);
+            boolean result = rmqAiwfServer.start();
+            if (result) rmqServer = rmqAiwfServer;
+            instance.setRmqConnect(result);
+            log.info("RabbitMQ Server Start {}. [{}], [{}], [{}]", StringUtil.getSucFail(result), target, host, user);
+        }
     }
 
     // Client
     private void startRmqClient() {
         // AIWF
-        addClient(config.getAiwf(), config.getAiwfHost(), config.getAiwfUser(), config.getAiwfPass(), config.getAiwfPort());
+        boolean aiwfResult = addClient(config.getAiwf(), config.getAiwfHost(), config.getAiwfUser(), config.getAiwfPass(), config.getAiwfPort());
+        instance.setRmqConnect(aiwfResult);
 
         // AIM
         addClient(config.getAim(), config.getHost(), config.getUser(), config.getPass(), config.getPort());
-
-        // For Test - AIIF
-        //addClient(config.getAiif(), config.getHost(), config.getUser(), config.getPass(), config.getPort());
+        // aim rmq connect result
     }
 
-    private void addClient(String target, String host, String user, String pass, int port) {
+    private boolean addClient(String target, String host, String user, String pass, int port) {
+        boolean result = false;
         if (rmqClientMap.get(target) == null) {
             RmqClient client = new RmqClient(host, user, pass, target, port);
-            if (client.start()) {
-                log.debug("RabbitMQ Client Start Success. [{}], [{}], [{}]", target, host, user);
-                rmqClientMap.put(target, client);
-            } else {
-                log.debug("RabbitMQ Client Start Fail. [{}], [{}], [{}]", target, host, user);
-            }
+            result = client.start();
+            if (result) rmqClientMap.put(target, client);
+            log.info("RabbitMQ Client Start {}. [{}], [{}], [{}]", StringUtil.getSucFail(result), target, host, user);
         }
+        return result;
     }
 
     public RmqClient getRmqClient(String queueName) {

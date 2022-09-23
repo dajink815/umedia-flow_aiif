@@ -32,15 +32,14 @@ public class DefaultConfig {
     private boolean loadBool = false;
     private ReloadingFileBasedConfigurationBuilder<FileBasedConfiguration> builder;
 
-    public DefaultConfig(String fileName) {
-        log.debug("Config File is {} ", fileName + DEFAULT_CONFIG);
+    public DefaultConfig(String configPath) {
+        log.debug("Config Path [{}] ", configPath);
     }
 
-    protected boolean load(String configpath) {
+    protected boolean load(String configPath) {
         try {
             Parameters params = new Parameters();
-            File configFile = new File(configpath + DEFAULT_CONFIG);
-            //builder = new ReloadingFileBasedConfigurationBuilder<FileBasedConfiguration>(INIConfiguration.class).configure(params.fileBased().setFile(configFile).setReloadingRefreshDelay(0L));
+            File configFile = new File(configPath + DEFAULT_CONFIG);
             builder = new ReloadingFileBasedConfigurationBuilder<FileBasedConfiguration>(INIConfiguration.class).configure(params.fileBased().setFile(configFile));
 
             builder.addEventListener(ConfigurationBuilderEvent.RESET, new EventListener<Event>() {

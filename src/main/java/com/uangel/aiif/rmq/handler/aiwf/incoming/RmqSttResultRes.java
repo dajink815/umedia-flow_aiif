@@ -19,9 +19,7 @@ public class RmqSttResultRes extends RmqIncomingMessage<SttResultRes> {
     @Override
     public void handle() {
 
-        String callId = body.getCallId();
-
-        //
+        // nothing
 
     }
 }

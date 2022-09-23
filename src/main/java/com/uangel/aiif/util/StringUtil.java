@@ -5,8 +5,6 @@
 
 package com.uangel.aiif.util;
 
-import com.google.common.net.InetAddresses;
-
 /**
  * String Util
  *
@@ -16,6 +14,7 @@ import com.google.common.net.InetAddresses;
 public class StringUtil {
     private static final String STR_OK = "OK";
     private static final String STR_FAIL = "FAIL";
+    private static final String STR_SUCCESS = "SUCCESS";
     private static final String TRUE = "TRUE";
     private static final String TEL = "TEL";
     private static final String ON = "ON";
@@ -27,6 +26,10 @@ public class StringUtil {
 
     public static String getOkFail(boolean result) {
         return (result ? STR_OK : STR_FAIL);
+    }
+
+    public static String getSucFail(boolean result) {
+        return (result ?  STR_SUCCESS : STR_FAIL);
     }
 
     public static boolean checkTrue(String str) {
@@ -69,16 +72,6 @@ public class StringUtil {
             return false;
         }
         return true;
-    }
-
-    public static boolean validateIPAddress(String ipAddress) {
-        if (InetAddresses.isInetAddress(ipAddress)) {
-            //log.debug("The IP address " + ipAddress + " is valid");
-            return true;
-        } else {
-            //log.debug("The IP address " + ipAddress + " isn't valid");
-        }
-        return false;
     }
 
 }

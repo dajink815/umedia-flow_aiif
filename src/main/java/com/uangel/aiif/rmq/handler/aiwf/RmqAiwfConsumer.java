@@ -16,13 +16,6 @@ public class RmqAiwfConsumer {
     static final Logger log = LoggerFactory.getLogger(RmqAiwfConsumer.class);
 
     public void aiwfMessageProcessing(Message msg) {
-        // For Test
-        try {
-            String json = JsonFormat.printer().includingDefaultValueFields().print(msg);
-            //log.debug("RmqAiwfConsumer -->\r\n{}", json);
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-        }
 
         switch(msg.getBodyCase().getNumber()){
             case Message.IHBRES_FIELD_NUMBER:

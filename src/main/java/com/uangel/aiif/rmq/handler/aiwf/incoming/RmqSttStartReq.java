@@ -97,6 +97,8 @@ public class RmqSttStartReq extends RmqIncomingMessage<SttStartReq> {
             }, sttDur, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             log.error("{}SttStartReq.sttConverter.Exception ", callInfo.getLogHeader(), e);
+            // STT Fail - Send Fail SttStartRes
+            sender.sendSttStartRes(getTId(), REASON_CODE_AI_ERROR, REASON_AI_ERROR, callId, dialogId);
         }
 
     }

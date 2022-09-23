@@ -31,15 +31,10 @@ public class PasswdDecryptor {
         crypto.setConfig(config);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         PasswdDecryptor decryptor = new PasswdDecryptor("skt_acs", "PBEWITHMD5ANDDES");
-//        String pass=decryptor.decrypt("amqp://acs:ENC(a6QXtGt/vWduIVUhJEZqrA==)@192.168.56.101:5672");
-        //    String pass=decryptor.decrypt("amqp://acs:acs.123@192.168.56.101:5672");
-        //   System.out.println(pass);
-
-        String tt = decryptor.encrypt("acs.123");
-        System.out.println(tt);
-        System.out.println(decryptor.decrypt0(tt));
+        decryptor.encrypt("acs.123");
+        // tt, decryptor.decrypt0(tt) 확인
     }
 
     public String decrypt0(String encrypted) {
@@ -53,14 +48,12 @@ public class PasswdDecryptor {
     public String decrypt(String f) {
         Pattern p = Pattern.compile("(ENC\\((.+?)\\))");
         Matcher m = p.matcher(f);
-        String g = new String(f);
+        String g = f;
         while (m.find()) {
-            String enc_ = m.group(1);
+            String enc = m.group(1);
             String encryptedPass = m.group(2);
-//            System.out.println(enc_);
-//            System.out.println(encryptedPass);
             String pass = decrypt0(encryptedPass);
-            g = StringUtils.replace(g, enc_, pass);
+            g = StringUtils.replace(g, enc, pass);
         }
 
         return g;

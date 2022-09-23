@@ -5,6 +5,7 @@ import com.uangel.aiif.rmq.RmqManager;
 import com.uangel.aiif.rtpcore.service.NettyChannelManager;
 import com.uangel.aiif.service.schedule.IntervalTaskManager;
 import com.uangel.aiif.util.SleepUtil;
+import com.uangel.protobuf.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +54,9 @@ public class ServiceManager {
 
     private void startService() {
         log.info("Start Service...");
+
+        // Default msgFrom
+        MessageBuilder.setDefaultMsgFrom(instance.getConfig().getAiif());
 
         rmqManager = RmqManager.getInstance();
         rmqManager.start();

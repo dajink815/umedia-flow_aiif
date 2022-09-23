@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TtsFileManager {
     static final Logger log = LoggerFactory.getLogger(TtsFileManager.class);
     private static TtsFileManager ttsFileManager = null;
-    private static final ConcurrentHashMap<Integer, TTsFileInfo> ttsFileMap2 = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Integer, TTsFileInfo> ttsFileMap = new ConcurrentHashMap<>();
 
     private TtsFileManager() {
         // nothing
@@ -27,13 +27,13 @@ public class TtsFileManager {
         this.addTtsFile(content.hashCode(), fileName);
     }
     public void addTtsFile(int key, String fileName) {
-        if (ttsFileMap2.containsKey(key)) {
+        if (ttsFileMap.containsKey(key)) {
             log.error("TTS File [{}] Exist", fileName);
             return;
         }
 
         TTsFileInfo fileInfo = new TTsFileInfo(key, fileName);
-        ttsFileMap2.put(key, fileInfo);
+        ttsFileMap.put(key, fileInfo);
         log.warn("TTS File [{}] Added", fileName);
     }
 
@@ -41,7 +41,7 @@ public class TtsFileManager {
         return this.getTtsFileName(content.hashCode());
     }
     public String getTtsFileName(int key) {
-        TTsFileInfo fileInfo = ttsFileMap2.get(key);
+        TTsFileInfo fileInfo = ttsFileMap.get(key);
         if (fileInfo == null) {
             log.warn("TTS File Null (key:{})", key);
             return null;
@@ -54,7 +54,7 @@ public class TtsFileManager {
         this.deleteTtsFile(content.hashCode());
     }
     public void deleteTtsFile(int key) {
-        TTsFileInfo fileInfo = ttsFileMap2.remove(key);
+        TTsFileInfo fileInfo = ttsFileMap.remove(key);
         if (fileInfo != null) {
             log.warn("TTS File [{}] Removed", fileInfo.getFileName());
         }

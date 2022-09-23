@@ -64,11 +64,13 @@ public class RmqMsgType {
     public static final int REASON_CODE_NO_SESSION = 4000;
     public static final int REASON_CODE_AI_ERROR = 4001;
     public static final int REASON_CODE_MEDIA_ERROR = 4002;
+    public static final int REASON_CODE_TYPE_ERROR = 4003;
 
     public static final String REASON_SUCCESS = "SUCCESS";
     public static final String REASON_NO_SESSION = "NO_SESSION";
     public static final String REASON_AI_ERROR = "AI_ERROR";
     public static final String REASON_MEDIA_ERROR = "MEDIA_ERROR";
+    public static final String REASON_TYPE_ERROR = "TYPE_ERROR";
 
 
     /**

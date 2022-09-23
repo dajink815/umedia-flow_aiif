@@ -16,6 +16,8 @@ public class AppInstance {
 
     // RMQ
     private BlockingQueue<Message> rmqMsgQueue;
+    private boolean rmqConnect;
+    private boolean rmqBlocked;
 
     private AppInstance() {
         // nothing
@@ -47,5 +49,19 @@ public class AppInstance {
     }
     public void setRmqMsgQueue(BlockingQueue<Message> rmqMsgQueue) {
         this.rmqMsgQueue = rmqMsgQueue;
+    }
+
+    public boolean isRmqConnect() {
+        return rmqConnect;
+    }
+    public void setRmqConnect(boolean rmqConnect) {
+        this.rmqConnect = rmqConnect;
+    }
+
+    public boolean isRmqBlocked() {
+        return rmqBlocked;
+    }
+    public void setRmqBlocked(boolean rmqBlocked) {
+        this.rmqBlocked = rmqBlocked;
     }
 }

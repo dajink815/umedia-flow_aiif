@@ -1,7 +1,6 @@
 package com.uangel.aiif.rmq.module.transport;
 
 import com.rabbitmq.client.impl.DefaultExceptionHandler;
-import com.uangel.aiif.config.AiifConfig;
 import com.uangel.aiif.rmq.module.RmqRecoveryListener;
 import com.uangel.aiif.service.AppInstance;
 import org.slf4j.Logger;
@@ -16,6 +15,7 @@ import java.io.IOException;
  */
 public class RmqTransport {
     static final Logger log = LoggerFactory.getLogger(RmqTransport.class);
+    private static final AppInstance instance = AppInstance.getInstance();
 
     private final String host;
     private final String queueName;
@@ -23,8 +23,6 @@ public class RmqTransport {
     private final String password;
     private final int port;
 
-    private final AppInstance instance = AppInstance.getInstance();
-    private final AiifConfig aiifConfig = instance.getConfig();
     private Connection connection;
     private Channel channel;
 
@@ -101,7 +99,7 @@ public class RmqTransport {
             @Override
             public void handleUnexpectedConnectionDriverException(Connection con, Throwable exception) {
                 log.error("handleUnexpectedConnectionDriverException Rabbit MQ {} Queue Connect Fail", queueName);
-
+                instance.setRmqConnect(false);
             }
 
             @Override
@@ -123,9 +121,13 @@ public class RmqTransport {
             this.connection.addBlockedListener(new BlockedListener() {
                 @Override
                 public void handleBlocked(String reason) {
+                    log.warn("handleBlocked Rabbit MQ {} Queue Blocked ({})", queueName, reason);
+                    instance.setRmqBlocked(true);
                 }
                 @Override
                 public void handleUnblocked() {
+                    log.warn("handleUnblocked Rabbit MQ {} Queue UnBlocked", queueName);
+                    instance.setRmqBlocked(false);
                 }
             });
             result = true;

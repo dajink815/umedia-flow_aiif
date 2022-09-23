@@ -8,6 +8,7 @@ package com.uangel.aiif.rmq.module;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Recoverable;
 import com.rabbitmq.client.RecoveryListener;
+import com.uangel.aiif.service.AppInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ public class RmqRecoveryListener implements RecoveryListener {
         if (recoverable instanceof Channel) {
             int channelNumber = ((Channel) recoverable).getChannelNumber();
             log.error("Rmq {} Connection to channel # {} was recovered.", queue, channelNumber);
+            AppInstance.getInstance().setRmqConnect(true);
         }
     }
 
